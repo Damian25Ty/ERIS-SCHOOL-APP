@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // The same Gist URL you used in Android Studio
+        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
+
+        async function checkKillSwitch() {
+            try {
+                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
+                const status = await response.text();
+                if (status.trim().toUpperCase() === "TERMINATE") {
+                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
+                    window.location.href = "about:blank"; // Or redirect them away
+                }
+            } catch (e) {
+                console.error("Kill switch check failed", e);
+            }
+        }
+        checkKillSwitch();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ERIS EDUCATION CENTRE Report Sheet</title>
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --header-blue: #004085;
+            --border-color: #333;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            font-size: 11px;
+        }
+        #page {
+            width: 950px; /* Wider to accommodate side tables */
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .header { text-align: center; color: var(--primary-blue); position: relative; padding-top: 10px; }
+        .logo { position: absolute; left: 0; top: 0; width: 80px; }
+        
+        .header-right-column {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .passport-photo {
+            width: 90px;
+            height: 90px;
+            border: 1px solid var(--border-color);
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .passport-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+        .photo-input {
+            font-size: 7px;
+            width: 60px;
+            height: 12px;
+            line-height: 10px;
+        }
+
+        .grade-remark-box {
+            border: 1px solid #000;
+            font-size: 8px;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .grade-remark-box th { background: #fff; color: #000; padding: 1px; border-bottom: 1px solid #000; font-size: 9px; }
+        .grade-remark-box td { border: 1px solid #000; padding: 1px; text-align: center; }
+
+        h1 { margin: 5px 0; font-size: 24px; text-transform: uppercase; }
+        .sub-header { font-weight: bold; font-size: 12px; }
+        .contact-info { font-size: 10px; margin-bottom: 5px; }
+        .term-box {
+            display: inline-block;
+            border: 1px solid #000;
+            padding: 3px 15px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        .student-info { display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 10px; margin: 15px 0; }
+        .info-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px; }
+        .info-row label { font-weight: bold; white-space: nowrap; }
+        .info-row input {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 2px;
+            font-size: 11px;
+            background: transparent;
+        }
+
+        .main-container { display: flex; gap: 20px; align-items: stretch; } 
+        .scores-table { flex: 2.5; }
+        .side-tables { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 1px; text-align: center; }
+        th { background-color: var(--header-blue); color: #fff; font-size: 10px; }
+
+        /* Reduced subject table row height */
+        .scores-table td { height: 15.8px; }
+        
+        /* Side tables touching with no gap */
+        .side-tables table { margin-bottom: 0; }
+        .side-tables td { height: 18px; }
+
+        .scores-table td:nth-child(2) { text-align: left; padding-left: 5px; }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            border: none;
+            text-align: left;
+            font-size: 11px;
+            padding: 0;
+            background: transparent;
+        }
+        input:focus { outline: none; background: #fff9c4; }
+
+        .footer-section { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .comment-box { margin-bottom: 10px; border-bottom: none ; display: flex; gap: 5px; }
+        .comment-box input { flex: 1; border: none; text-align: left; }
+
+        .red-text { color: red; font-weight: bold; }
+
+        .controls { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: #fff; }
+        .btn-save { background: #28a745; }
+        .btn-nav { background: #007bff; }
+
+        @media print {
+            .controls, .photo-input { display: none !important; }
+            body { background: #fff; padding: 0; }
+            #page { box-shadow: none; margin: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="Passcode"><br>
+    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
+    <button id="btn">Open</button>
+</div>
+<div id="page" style="display:none">
+
+    <div class="header">
+        <img src="ERIS LOGO.jpg.jpeg" class="logo" alt="Logo">
+
+        <!-- Right Column with Photo and Photo Input -->
+        <div class="header-right-column">
+            <div class="passport-photo">
+                <img id="photoPreview" src="" alt="Passport">
+            </div>
+            <input type="file" id="photoInput" class="photo-input" accept="image/*" onchange="handlePhoto(this)">
+            
+            <table class="grade-remark-box">
+                <tr><th colspan="3">GRADE REMARK</th></tr>
+                <tr><td>80 - 100</td><td>A</td><td>Excellent</td></tr>
+                <tr><td>70 - 79</td><td>B</td><td>Very Good</td></tr>
+                <tr><td>60 - 69</td><td>C</td><td>Credit</td></tr>
+                <tr><td>50 - 59</td><td>D</td><td>Good</td></tr>
+                <tr><td>45 - 49</td><td>E</td><td>Fair</td></tr>
+                <tr><td>44 Below</td><td>F</td><td>Fail</td></tr>
+            </table>
+        </div>
+
+        <h1>ERIS EDUCATION CENTRE</h1>
+        <div class="sub-header">PRE-NURSERY, NURSERY, PRIMARY & HIGH SCHOOL</div>
+        <div class="contact-info">
+            1/2 ERHIGA DRIVE BEHIND GT BANK, SAPELE/WARRI ROAD, SAPELE, DELTA STATE, NIGERIA.<br>
+            TEL: +2348037552638, +2348037552639 &nbsp; EMAIL: eriscomputers2001@yahoo.com
+        </div>
+        <div class="term-box"><input type="text" id="termYear" value="1ST TERM 2025/2026" style="width:150px; font-weight:bold;"></div>
+    </div>
+
+    <div class="student-info">
+        <div>
+            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;">
+            <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;">
+            <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;">
+            </div>
+            <br>
+            <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;">
+            <label>POSITION:</label><input type="text" id="position" style="width:50px; font-size:15px; flex:none;">
+            <label>MARKS OBTAINED:</label><input type="text" style="width:50px; font-size:15px; flex:none;" id="marksObtained" readonly>
+                <label>AVERAGE:</label> <span id="averageSpan" style="; font-size:15px">0.00</span> &emsp14;
+                <label>REMARK:</label> <input type="text" id="generalRemark" style="width:80px; font-size:15px; border-bottom:1px solid #000;">
+            </label>
+    </div>
+        </div>
+    </div>
+    <br>
+    <div class="main-container">
+        <!-- Main Scores Table -->
+        <div class="scores-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30px">S/N</th>
+                        <th>SUBJECTS</th>
+                        <th style="width:50px">1<sup>st</sup><br>Test<br>15<br>Marks</th>
+                        <th style="width:50px">2<sup>nd</sup><br>Test<br>15<br>Marks</th>
+                        <th style="width:50px">C.A<br>10<br>Marks</th>
+                        <th style="width:50px">Exam<br>60<br>Marks</th>
+                        <th style="width:60px">TOTAL<br>100<br>Marks</th>
+                        <th style="width:60px">Subject<br>Position</th>
+                        <th style="width:40px">Grade</th>
+                    </tr>
+                </thead>
+                <tbody id="subjectRows">
+                    <!-- Generated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Right Side Tables joined seamlessly -->
+        <div class="side-tables">
+            <table>
+                <thead>
+                    <tr style="background:#004085;color:white; font-size:10px">
+                        <th style="text-align:left; border: 1px solid #000;">Behaviour and activities</th>
+                        <th style="border: 1px solid #000;">A</th>
+                        <th style="border: 1px solid #000;">B</th>
+                        <th style="border: 1px solid #000;">C</th>
+                        <th style="border: 1px solid #000;">D</th>
+                    </tr>
+                </thead>
+                <tbody id="behaviourRows" style="font-size:10px">
+                    <!-- Generated by JS -->
+                </tbody>
+            </table>
+
+            <table>
+                <thead>
+                    <tr style="background:#004085;color:white; font-size:10px">
+                        <th style="text-align:left; border: 1px solid #000;">Psychomotor Skill</th>
+                        <th style="border: 1px solid #000;">A</th>
+                        <th style="border: 1px solid #000;">B</th>
+                        <th style="border: 1px solid #000;">C</th>
+                        <th style="border: 1px solid #000;">D</th>
+                    </tr>
+                </thead>
+                <tbody id="psychomotorRows" style="font-size:10px">
+                    <!-- Generated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer"><br>
+        <div class="comment-box"><label>Principal's Comment:</label><input type="text" id="principalComment" style="width:300px; border-bottom:none"> <label>Class Teacher's Comment:</label><input type="text" id="teacherComment" style="width:300px"></div>
+        <div class="footer-section">
+            <div>
+                <p class="red-text">Next Term Fee: ₦<input type="text" id="nextTermFee" style="width:40px; font-weight:bold; border-bottom:none;"> Outstanding Bills: <input type="text" id="outstandingBills" style="width:40px; border-bottom:none;font-weight:bold">Total Dues: <input type="text" id="totalDues" style="width:40px; border-bottom:none;font-weight:bold"></p>
+                <p class="red-text">Next Term Begins: <input type="text" id="nextTermBegins" style="width:150px; color:red; font-weight:bold; border-bottom:1px solid red;"></p>
+                &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="controls" class="controls" style="display:none; text-align:center;">
+    <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>
+    <button class="btn btn-nav" onclick="goForward()">NEXT</button>
+    <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
+    <br><br><br>
+    <button class="btn btn-save" onclick="submitResult()">SAVE AS PDF</button>
+</div>
+
+<script>
+    document.getElementById("btn").onclick = function() {
+        let code = document.getElementById("code").value;
+        if (code === "9131") {
+    document.getElementById("Passcode").style.display = "none";
+    document.getElementById("page").style.display = "block";
+    document.getElementById("controls").style.display = "block";
+    }
+    else{
+    window.alert("Invalid Passcode");
+    }
+    };
+</script>
+
+<script>
+    const SUBJECTS = ["Mathematics", "Comprehension", "Continuous Writing", "Lexis and Structure", "Phonetics", "Literature in English", "Christian Religious Studies", "History", "Business Studies", "Music", "Civic Education", "Social Studies", "Computer Studies", "Basic Science", "Basic Technology", "Home Economics", "Physical Health Education", "Urhobo", "Agricultural Science", "Phone Repair"];
+
+    const BEHAVIOURS = ["Punctuality", "Neatness", "Obedience", "Attentiveness", "Participation in Activities", "Ability to work alone", "Politeness", "Relationship with others", "Self-Control", "Sense of Responsibility", "Resourcefulness", "Relationship with Staff"];
+
+    const PSYCHOMOTORS = ["Sport", "Creativity", "Musical Skill", "Handling of School Materials", "Public Speaking", "Drawing"];
+
+    let pages = [];
+    let currentIndex = -1;
+
+    function init() {
+        const subTbody = document.getElementById("subjectRows");
+        subTbody.innerHTML = "";
+        SUBJECTS.forEach((sub, i) => {
+            const row = `<tr>
+                <td>${i+1}</td>
+                <td style="text-align:left; padding-left: 5px;">${sub}</td>
+                <td><input type="number" id="t1_${i}" oninput="calc()"></td>
+                <td><input type="number" id="t2_${i}" oninput="calc()"></td>
+                <td><input type="number" id="ca_${i}" oninput="calc()"></td>
+                <td><input type="number" id="ex_${i}" oninput="calc()"></td>
+                <td id="total_${i}">0</td>
+                <td><input type="text" id="pos_${i}" readonly></td>
+                <td id="grade_${i}">-</td>
+            </tr>`;
+            subTbody.innerHTML += row;
+        });
+
+        const behTbody = document.getElementById("behaviourRows");
+        behTbody.innerHTML = "";
+        BEHAVIOURS.forEach((beh, i) => {
+            behTbody.innerHTML += `<tr><td style="text-align:left; padding-left: 5px;">${beh}</td><td><input type="checkbox" id="beh_a_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="beh_b_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="beh_c_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="beh_d_${i}" onchange="saveCurrent()"></td></tr>`;
+        });
+
+        const psyTbody = document.getElementById("psychomotorRows");
+        psyTbody.innerHTML = "";
+        PSYCHOMOTORS.forEach((psy, i) => {
+            psyTbody.innerHTML += `<tr><td style="text-align:left; padding-left: 5px;">${psy}</td><td><input type="checkbox" id="psy_a_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="psy_b_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="psy_c_${i}" onchange="saveCurrent()"></td><td><input type="checkbox" id="psy_d_${i}" onchange="saveCurrent()"></td></tr>`;
+        });
+
+        newPage();
+    }
+
+    function createEmptyData() {
+        return {
+            name: "", class: "", session: "1ST TERM 2025/2026", position: "", attendance: "", noInClass: "",
+            scores: Array.from({length: 20}, () => [0, 0, 0, 0]), 
+            photo: "", 
+            generalRemark: "",
+            principalComment: "", teacherComment: "",
+            nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "",
+            behaviours: Array.from({length: 12}, () => [false, false, false, false]),
+            psychomotors: Array.from({length: 6}, () => [false, false, false, false])
+        };
+    }
+
+    function newPage() { saveCurrent(); pages.push(createEmptyData()); currentIndex++; resetFields(); }
+
+    function goBack() { if (currentIndex > 0) { saveCurrent(); currentIndex--; restoreData(); } }
+    
+    function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; restoreData(); } }
+
+    function resetFields() {
+        document.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => el.value = "");
+        document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+        document.getElementById("photoPreview").src = "";
+        document.getElementById("termYear").value = "1ST TERM 2025/2026";
+        calc();
+    }
+
+    function saveCurrent() {
+        if (currentIndex < 0) return;
+        let data = pages[currentIndex];
+        data.name = document.getElementById("studentName").value;
+        data.class = document.getElementById("studentClass").value;
+        data.session = document.getElementById("termYear").value;
+        data.attendance = document.getElementById("attendance").value;
+        data.noInClass = document.getElementById("noInClass").value;
+        data.position = document.getElementById("position").value;
+        data.generalRemark = document.getElementById("generalRemark").value;
+        data.principalComment = document.getElementById("principalComment").value;
+        data.teacherComment = document.getElementById("teacherComment").value;
+        data.nextTermFee = document.getElementById("nextTermFee").value;
+        data.outstandingBills = document.getElementById("outstandingBills").value;
+        data.totalDues = document.getElementById("totalDues").value;
+        data.nextTermBegins = document.getElementById("nextTermBegins").value;
+        data.photo = document.getElementById("photoPreview").src;
+
+        data.scores = [];
+        for (let i = 0; i < 20; i++) {
+            data.scores.push([getVal(`t1_${i}`), getVal(`t2_${i}`), getVal(`ca_${i}`), getVal(`ex_${i}`)]);
+        }
+
+        data.behaviours = [];
+        for (let i = 0; i < 12; i++) {
+            data.behaviours.push([
+                document.getElementById(`beh_a_${i}`).checked,
+                document.getElementById(`beh_b_${i}`).checked,
+                document.getElementById(`beh_c_${i}`).checked,
+                document.getElementById(`beh_d_${i}`).checked
+            ]);
+        }
+
+        data.psychomotors = [];
+        for (let i = 0; i < 6; i++) {
+            data.psychomotors.push([
+                document.getElementById(`psy_a_${i}`).checked,
+                document.getElementById(`psy_b_${i}`).checked,
+                document.getElementById(`psy_c_${i}`).checked,
+                document.getElementById(`psy_d_${i}`).checked
+            ]);
+        }
+    }
+
+    function restoreData() {
+        const data = pages[currentIndex];
+        document.getElementById("studentName").value = data.name || "";
+        document.getElementById("studentClass").value = data.class || "";
+        document.getElementById("termYear").value = data.session || "1ST TERM 2025/2026";
+        document.getElementById("attendance").value = data.attendance || "";
+        document.getElementById("noInClass").value = data.noInClass || "";
+        document.getElementById("position").value = data.position || "";
+        document.getElementById("generalRemark").value = data.generalRemark || "";
+        document.getElementById("principalComment").value = data.principalComment || "";
+        document.getElementById("teacherComment").value = data.teacherComment || "";
+        document.getElementById("nextTermFee").value = data.nextTermFee || "";
+        document.getElementById("outstandingBills").value = data.outstandingBills || "";
+        document.getElementById("totalDues").value = data.totalDues || "";
+        document.getElementById("nextTermBegins").value = data.nextTermBegins || "";
+        document.getElementById("photoPreview").src = data.photo || "";
+
+        for (let i = 0; i < 20; i++) {
+            const s = data.scores[i];
+            document.getElementById(`t1_${i}`).value = s[0] || "";
+            document.getElementById(`t2_${i}`).value = s[1] || "";
+            document.getElementById(`ca_${i}`).value = s[2] || "";
+            document.getElementById(`ex_${i}`).value = s[3] || "";
+        }
+
+        for (let i = 0; i < 12; i++) {
+            const b = data.behaviours[i];
+            document.getElementById(`beh_a_${i}`).checked = b[0];
+            document.getElementById(`beh_b_${i}`).checked = b[1];
+            document.getElementById(`beh_c_${i}`).checked = b[2];
+            document.getElementById(`beh_d_${i}`).checked = b[3];
+        }
+
+        for (let i = 0; i < 6; i++) {
+            const p = data.psychomotors[i];
+            document.getElementById(`psy_a_${i}`).checked = p[0];
+            document.getElementById(`psy_b_${i}`).checked = p[1];
+            document.getElementById(`psy_c_${i}`).checked = p[2];
+            document.getElementById(`psy_d_${i}`).checked = p[3];
+        }
+
+        calc();
+    }
+
+    function getVal(id) { const el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
+
+    function getOrdinal(n) {
+        let s = ["th", "st", "nd", "rd"], v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    function updatePositions() {
+        if (currentIndex < 0) return;
+        saveCurrent(); // Save current data to include in ranking
+
+        // Calculate Subject Positions
+        for (let i = 0; i < 20; i++) {
+            let subjectTotals = pages.map(p => p.scores[i].reduce((a, b) => a + b, 0));
+            let currentTotal = subjectTotals[currentIndex];
+            
+            if (currentTotal === 0) {
+                document.getElementById(`pos_${i}`).value = "";
+                continue;
+            }
+
+            let rank = 1;
+            subjectTotals.forEach(t => { if (t > currentTotal) rank++; });
+            document.getElementById(`pos_${i}`).value = getOrdinal(rank);
+        }
+
+        // Calculate Overall Position in Class
+        let grandTotals = pages.map(p => p.scores.flat().reduce((a, b) => a + b, 0));
+        let currentGrandTotal = grandTotals[currentIndex];
+        
+        if (currentGrandTotal > 0) {
+            let overallRank = 1;
+            grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
+            document.getElementById("position").value = getOrdinal(overallRank);
+            document.getElementById("noInClass").value = pages.length;
+        }
+    }
+
+    function calc() {
+        let grandTotal = 0;
+        for (let i = 0; i < 20; i++) {
+            let t1 = getVal(`t1_${i}`), t2 = getVal(`t2_${i}`), ca = getVal(`ca_${i}`), ex = getVal(`ex_${i}`);
+            let total = t1 + t2 + ca + ex;
+            grandTotal += total;
+            document.getElementById(`total_${i}`).innerText = total;
+            document.getElementById(`grade_${i}`).innerText = getGrade(total);
+        }
+        document.getElementById("marksObtained").value = grandTotal;
+        let avg = grandTotal / 20;
+        document.getElementById("averageSpan").innerText = avg.toFixed(2);
+        
+        updatePositions();
+    }
+
+    function getGrade(score) {
+        if (score >= 80) return "A";
+        if (score >= 70) return "B";
+        if (score >= 60) return "C";
+        if (score >= 50) return "D";
+        if (score >= 45) return "E";
+        return "F";
+    }
+
+    function handlePhoto(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('photoPreview').src = e.target.result;
+                saveCurrent();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function submitResult() {
+        saveCurrent();
+        let name = document.getElementById("studentName").value.trim();
+        if (!name) { alert("Enter Student Name"); return; }
+
+        document.querySelector('.controls').style.display = 'none';
+        document.getElementById('photoInput').style.display = 'none';
+        window.scrollTo(0,0);
+
+        setTimeout(() => {
+            if (typeof Android !== "undefined") {
+                Android.savePDF(name, document.documentElement.outerHTML);
+            }
+            document.querySelector('.controls').style.display = 'flex';
+            document.getElementById('photoInput').style.display = 'block';
+        }, 500);
+    }
+
+    init();
+</script>
+</body>
+</html>
