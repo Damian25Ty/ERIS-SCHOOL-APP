@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Student Result System</title>
 
+    <!-- Required for Website-side PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         :root {
             --primary-color: #000080; /* Dark Blue */
@@ -143,6 +147,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/image/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     let pages = [];
     let currentIndex = -1;
@@ -185,11 +191,11 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
         let grandTotals = pages.map(p => p.scores.reduce((sum, s) => sum + s[0] + s[1] + s[2], 0));
         let currentGrandTotal = grandTotals[currentIndex];
-        
+
         if (currentGrandTotal > 0) {
             let overallRank = 1;
             grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
-            
+
             const posEl = document.getElementById("position");
             const sizeEl = document.getElementById("classSize");
             if (posEl) posEl.value = getOrdinal(overallRank);
@@ -205,13 +211,13 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             total = t1 + t2 + ex;
             overallTotal += total;
             maxOverallMark += maxMark;
-            document.getElementById(`total_${i}`).innerText = total;
-            document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
+            if(document.getElementById(`total_${i}`)) document.getElementById(`total_${i}`).innerText = total;
+            if(document.getElementById(`remark_${i}`)) document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
         }
         let average = maxOverallMark > 0 ? (overallTotal / maxOverallMark) * 100 : 0;
-        document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
-        document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
-        
+        if(document.getElementById("overall")) document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
+        if(document.getElementById("average")) document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
+
         updatePositions();
     }
 
@@ -263,7 +269,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 <div id="overall" style="font-size:10px";>MARKS OBTAINED: 0 / 2150</div>
                 <div id="average" style="font-size:10px";>AVERAGE: 0%</div>
             </div>
-            <label>Class Teacher's Comment:</label> <input type="text" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
+            <label>Class Teacher's Comment:</label> <input type="text" id="classTeacherComment" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
             <label"> <br>
             &emsp;&emsp;<label style="font-size:10px;">AFFECTIVE REPORT &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;PSYCHOMOTOR REPORT</label>
             <table style="width:60%;">
@@ -304,15 +310,21 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
             <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top:20px;">
                 <u>
-                    <p>Head Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Next Term Fees: <input type="text" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Class Teacher's Remark/Signature: <input type="text" style="width:60%; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Head Teacher's Comment: <input type="text" id="headTeacherComment" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Next Term Fees: <input type="text" id="nextTermFees" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Class Teacher's Remark/Signature: <input type="text" id="teacherSignature" style="width:60%; border:none; border-bottom:1px solid #ccc;"></p>
                     <p>Next Term Begins: 11th of January 2025 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" alt=""></p>
                 </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
             </div>
 
-            <button class="btn" onclick="submitResult()">SAVE AS PDF</button>
-            <div class="nav"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
+            <div id="controls">
+                <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
+            </div>
+            <div id="navigation" class="nav">
+                <button onclick="goBack()">⬅️ Prev</button>
+                <button onclick="goForward()">➡️ Next</button>
+                <button onclick="newPage()">➕ New</button>
+            </div>
         `;
     }
 
@@ -344,38 +356,76 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         calc();
     }
 
+    function hideButtons() {
+        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'none';
+        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'none';
+        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'none';
+    }
+
+    function showButtons() {
+        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'block';
+        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'flex';
+        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
+    }
+
     function submitResult() {
         calc();
         let studentName = document.getElementById("studentName").value.trim();
         if (studentName === "") { alert("Please enter student name!"); return; }
 
         if (typeof Android !== "undefined") {
-            // APP VERSION
-            document.querySelector('.btn').style.display = 'none';
-            document.querySelector('.nav').style.display = 'none';
-            document.getElementById('photoInput').style.display = 'none';
+            hideButtons();
             window.scrollTo(0, 0);
-
             setTimeout(() => {
                 Android.savePDF(studentName, document.documentElement.outerHTML);
-                setTimeout(showButtons, 1000);
             }, 500);
         } else {
-            // WEBSITE VERSION
             saveToWebDatabase(studentName);
         }
     }
 
     async function saveToWebDatabase(name) {
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Processing PDF...";
+        btn.disabled = true;
+        hideButtons();
+
         try {
-            // 1. Get latest record
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('page');
+            
+            // Generate Screenshot of the result
+            const canvas = await html2canvas(element, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const pdfBlob = pdf.output('blob');
+
+            // Upload PDF to Cloudinary
+            const formData = new FormData();
+            formData.append('file', pdfBlob);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
+
+            const cloudRes = await fetch(CLOUDINARY_URL, {
+                method: 'POST',
+                body: formData
+            });
+            const cloudData = await cloudRes.json();
+            const pdfUrl = cloudData.secure_url;
+
+            // Save Credentials to JSONBin
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
             const data = await res.json();
             const record = data.record;
 
-            // 2. Generate passcode if new
             let code = "1000";
             if (record[name]) {
                 code = record[name].split("|")[0];
@@ -383,30 +433,26 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 code = Math.floor(1000 + Math.random() * 9000).toString();
             }
 
-            // 3. Update record (URL is empty because website can't auto-upload to Cloudinary yet)
-            record[name] = `${code}|Website-Save`;
+            record[name] = `${code}|${pdfUrl}`;
 
-            // 4. Save back to JsonBin
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: { 
+                headers: {
                     'X-Master-Key': API_KEY,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(record)
             });
 
-            alert(`Result saved to database! Passcode for ${name} is: ${code}. You can now save the PDF manually.`);
-            window.print(); // Let user save the PDF file locally
+            alert(`Result successfully saved! Passcode for ${name} is: ${code}`);
         } catch (e) {
-            alert("Database save failed. Check your internet.");
+            console.error(e);
+            alert("Save failed. Make sure you are connected to the internet.");
+        } finally {
+            showButtons();
+            btn.innerText = "SAVE AS PDF";
+            btn.disabled = false;
         }
-    }
-
-    function showButtons() {
-        document.querySelector('.btn').style.display = 'block';
-        document.querySelector('.nav').style.display = 'flex';
-        document.getElementById('photoInput').style.display = 'block';
     }
 </script>
 </body>
