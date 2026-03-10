@@ -1,24 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-        // The same Gist URL you used in Android Studio
-        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
-
-        async function checkKillSwitch() {
-            try {
-                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
-                const status = await response.text();
-                if (status.trim().toUpperCase() === "TERMINATE") {
-                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
-                    window.location.href = "about:blank"; // Or redirect them away
-                }
-            } catch (e) {
-                console.error("Kill switch check failed", e);
-            }
-        }
-        checkKillSwitch();
-    </script>
     <meta charset="utf-8">
     <title>Student Login</title>
     <style>
@@ -43,25 +25,21 @@
             width: 100%;
             padding: 12px;
             font-size: 18px;
-            background: #28a745; /* Green color */
+            background: #28a745; 
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
-        button:hover {
-            opacity: 0.9;
-        }
+        button:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
 
     <div class="login-container">
         <h2>Student Login</h2>
-
         <input id="studentName" placeholder="Enter Full Name">
         <input id="passcode" type="password" placeholder="Enter Passcode">
-
         <button onclick="performLogin()">CHECK RESULT</button>
     </div>
 
@@ -80,23 +58,28 @@
             }
 
             try {
-                // 1. Try Primary School database first
+                // Check Primary database
                 let result = await checkDatabase(BIN_PRIMARY, name, code);
                 
-                // 2. If not found, try High School database
+                // If not found, check High School database
                 if (!result) {
                     result = await checkDatabase(BIN_HIGH, name, code);
                 }
 
                 if (result) {
-                    window.open(result, '_blank');
+                    // IF IN APP: Use the viewUrl helper we added to Java
+                    if (typeof Android !== "undefined" && Android.viewUrl) {
+                        Android.viewUrl(result);
+                    } else {
+                        // IF ON WEB: Use standard window.open
+                        window.open(result, '_blank');
+                    }
                 } else {
-                    alert("Invalid name or passcode. Please try again.");
+                    alert("Invalid name or passcode.");
                 }
 
             } catch (e) {
-                console.error("Login error:", e);
-                alert("Connection error. Please check your internet.");
+                alert("Connection error. Check your internet.");
             }
         }
 
@@ -111,12 +94,11 @@
             if (record[name]) {
                 const parts = record[name].split("|");
                 if (parts[0] === code) {
-                    return parts[1]; // Return the PDF URL
+                    return parts[1]; // The PDF URL
                 }
             }
             return null;
         }
     </script>
-
 </body>
 </html>
