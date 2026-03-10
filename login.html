@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script>
+        // The same Gist URL you used in Android Studio
+        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
+
+        async function checkKillSwitch() {
+            try {
+                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
+                const status = await response.text();
+                if (status.trim().toUpperCase() === "TERMINATE") {
+                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
+                    window.location.href = "about:blank"; // Or redirect them away
+                }
+            } catch (e) {
+                console.error("Kill switch check failed", e);
+            }
+        }
+        checkKillSwitch();
+    </script>
     <meta charset="utf-8">
     <title>Student Login</title>
     <style>
@@ -102,3 +120,4 @@
     </script>
 </body>
 </html>
+
