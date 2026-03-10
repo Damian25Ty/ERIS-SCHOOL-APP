@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Student Login</title>
+    <style>
+        body { font-family: Arial; padding: 20px; text-align: center; }
+        h2 { color: #333; }
+        .login-container {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background: #28a745; /* Green color */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Student Login</h2>
+
+        <input id="studentName" placeholder="Enter Full Name">
+        <input id="passcode" type="password" placeholder="Enter Passcode">
+
+        <button onclick="performLogin()">LOGIN</button>
+    </div>
+
+    <script>
+        function performLogin(){
+            let name = document.getElementById("studentName").value.trim();
+            let code = document.getElementById("passcode").value.trim();
+
+            // Allow "Plan A" to proceed without a passcode.
+            if (name.toLowerCase() !== 'plan a' && (!name || !code)) {
+                alert("Please enter both name and passcode.");
+                return;
+            }
+
+            if(typeof Android !== "undefined" && Android.verifyStudent){
+                Android.verifyStudent(name, code);
+            } else {
+                alert("Application interface is not available.");
+            }
+        }
+    </script>
+
+</body>
+</html>

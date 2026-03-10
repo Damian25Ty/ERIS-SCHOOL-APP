@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Results</title>
+    <style>
+        body{font-family:Arial;padding:15px}
+        h2{text-align:center}
+        .pdf-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .pdf-name {
+            flex: 1;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .delete-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .delete-btn:hover {
+            background: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Saved Student Results</h2>
+
+<div id="pdfList"></div>
+
+<script>
+    function loadPDFs(){
+        if(typeof Android !== "undefined"){
+            Android.getPDFList();
+        }
+    }
+
+    function showPDFList(data){
+        let list = document.getElementById("pdfList");
+        list.innerHTML = "";
+
+        let names = data.split("|");
+
+        names.forEach(name=>{
+            if(name.trim() !== ""){
+                let container = document.createElement("div");
+                container.className = "pdf-container";
+
+                let nameDiv = document.createElement("div");
+                nameDiv.className = "pdf-name";
+                nameDiv.innerText = name;
+                nameDiv.onclick = () => Android.openPDF(name);
+
+                let deleteBtn = document.createElement("button");
+                deleteBtn.className = "delete-btn";
+                deleteBtn.innerText = "DELETE";
+                deleteBtn.onclick = () => {
+                    if(confirm("Are you sure you want to delete " + name + "?")) {
+                        Android.deleteStudent(name);
+                    }
+                };
+
+                container.appendChild(nameDiv);
+                container.appendChild(deleteBtn);
+                list.appendChild(container);
+            }
+        });
+    }
+
+    loadPDFs();
+</script>
+
+</body>
+</html>

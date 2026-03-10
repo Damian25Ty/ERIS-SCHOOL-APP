@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        h2 { margin-bottom: 10px; color: #333; }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        button:hover { background: #0056b3; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: white;
+        }
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th { background-color: #f2f2f2; }
+        .show-btn {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .show-btn:hover { background: #218838; }
+        #loginDiv, #panelDiv { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #editControls { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
+        #htmlEditor { width: 100%; height: 400px; margin-top: 10px; border-radius: 4px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="loginDiv">
+    <h2>Admin Login</h2>
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">LOGIN</button>
+</div>
+
+<div id="panelDiv" style="display:none;">
+    <h2>Student Credentials</h2>
+    <button onclick="refreshCredentials()">Refresh List</button>
+    <table>
+        <thead>
+        <tr><th>Name</th><th>Passcode</th></tr>
+        </thead>
+        <tbody id="list"></tbody>
+    </table>
+
+    <div id="editControls">
+        <button id="editButton" onclick="enableEditMode()">Edit Page HTML</button>
+        <div id="saveContainer" style="display:none;">
+            <textarea id="htmlEditor"></textarea>
+            <button onclick="savePage()">Save Page</button>
+            <button onclick="cancelEdit()" style="background-color:#6c757d;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let autoRefreshInterval;
+
+    function login(){
+        const username = document.getElementById("user").value;
+        const password = document.getElementById("pass").value;
+
+        if(username === "admin" && password === "1234"){
+            document.getElementById("loginDiv").style.display = "none";
+            document.getElementById("panelDiv").style.display = "block";
+            fetchCredentials();
+            autoRefreshInterval = setInterval(fetchCredentials, 30000);
+        } else {
+            alert("Invalid login");
+        }
+    }
+
+    function fetchCredentials(){
+        try {
+            if(typeof Android !== "undefined" && Android.getAllCredentials){
+                Android.getAllCredentials();
+            } else {
+                console.warn("Android interface not available.");
+            }
+        } catch(e){
+            console.error("Error connecting to AndroidBridge:", e.message);
+        }
+    }
+
+    function refreshCredentials(){
+        fetchCredentials();
+    }
+
+    function showCredentials(data){
+        const list = document.getElementById("list");
+        list.innerHTML = "";
+
+        if(!data) return;
+
+        const entries = data.split("|").filter(Boolean);
+
+        for(const e of entries){
+            const parts = e.split(":");
+            if(parts.length === 2){
+                const row = list.insertRow();
+                row.insertCell(0).innerText = parts[0];
+
+                const cell = row.insertCell(1);
+                const button = document.createElement("button");
+                button.className = "show-btn";
+                button.innerText = "Show";
+                button.onclick = function() {
+                    this.parentElement.innerText = parts[1];
+                };
+                cell.appendChild(button);
+            }
+        }
+    }
+
+    function enableEditMode() {
+        document.getElementById("editButton").style.display = 'none';
+        document.getElementById("saveContainer").style.display = 'block';
+        document.getElementById('htmlEditor').value = document.documentElement.outerHTML;
+    }
+
+    function cancelEdit() {
+        document.getElementById("editButton").style.display = 'block';
+        document.getElementById("saveContainer").style.display = 'none';
+    }
+
+    function savePage() {
+        const updatedHtml = document.getElementById('htmlEditor').value;
+        if (typeof Android !== "undefined" && Android.updateAdminPage) {
+            Android.updateAdminPage(updatedHtml);
+            alert("Page update sent. The page will now reload to reflect changes from the server.");
+            cancelEdit();
+        } else {
+            alert("Error: Android interface not available to save page.");
+        }
+    }
+</script>
+
+</body>
+</html>
