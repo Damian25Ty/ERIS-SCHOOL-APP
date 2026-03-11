@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>ERIS EDUCATION CENTRE Report Sheet</title>
+
+    <!-- Required for Website-side PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         :root {
             --primary-blue: #0056b3;
@@ -27,7 +32,7 @@
         }
         .header { text-align: center; color: var(--primary-blue); position: relative; padding-top: 10px; }
         .logo { position: absolute; left: 0; top: 0; width: 80px; }
-        
+
         .header-right-column {
             position: absolute;
             right: 0;
@@ -90,7 +95,7 @@
             background: transparent;
         }
 
-        .main-container { display: flex; gap: 20px; align-items: stretch; } 
+        .main-container { display: flex; gap: 20px; align-items: stretch; }
         .scores-table { flex: 2.5; }
         .side-tables { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
 
@@ -98,10 +103,7 @@
         th, td { border: 1px solid #000; padding: 1px; text-align: center; }
         th { background-color: var(--header-blue); color: #fff; font-size: 10px; }
 
-        /* Reduced subject table row height */
         .scores-table td { height: 15.8px; }
-        
-        /* Side tables touching with no gap */
         .side-tables table { margin-bottom: 0; }
         .side-tables td { height: 18px; }
 
@@ -146,7 +148,7 @@
                 <img id="photoPreview" src="" alt="Passport">
             </div>
             <input type="file" id="photoInput" class="photo-input" accept="image/*" onchange="handlePhoto(this)">
-            
+
             <table class="grade-remark-box">
                 <tr><th colspan="3">GRADE REMARK</th></tr>
                 <tr><td>80 - 100</td><td>A</td><td>Excellent</td></tr>
@@ -170,73 +172,58 @@
     <div class="student-info">
         <div>
             <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;">
-            <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;">
-            <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;">
+                <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;">
+                <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;">
             </div>
             <br>
             <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;">
-            <label>POSITION:</label><input type="text" id="position" style="width:50px; font-size:15px; flex:none;">
-            <label>MARKS OBTAINED:</label><input type="text" style="width:50px; font-size:15px; flex:none;" id="marksObtained" readonly>
+                <label>POSITION:</label><input type="text" id="position" style="width:50px; font-size:15px; flex:none;">
+                <label>MARKS OBTAINED:</label><input type="text" style="width:50px; font-size:15px; flex:none;" id="marksObtained" readonly>
                 <label>AVERAGE:</label> <span id="averageSpan" style="; font-size:15px">0.00</span> &emsp14;
                 <label>REMARK:</label> <input type="text" id="generalRemark" style="width:80px; font-size:15px; border-bottom:1px solid #000;">
-            </label>
-    </div>
+            </div>
         </div>
     </div>
     <br>
     <div class="main-container">
-        <!-- Main Scores Table -->
         <div class="scores-table">
             <table>
                 <thead>
-                    <tr>
-                        <th style="width:30px">S/N</th>
-                        <th>SUBJECTS</th>
-                        <th style="width:50px">1<sup>st</sup><br>Test<br>15<br>Marks</th>
-                        <th style="width:50px">2<sup>nd</sup><br>Test<br>15<br>Marks</th>
-                        <th style="width:50px">C.A<br>10<br>Marks</th>
-                        <th style="width:50px">Exam<br>60<br>Marks</th>
-                        <th style="width:60px">TOTAL<br>100<br>Marks</th>
-                        <th style="width:60px">Subject<br>Position</th>
-                        <th style="width:40px">Grade</th>
-                    </tr>
+                <tr>
+                    <th style="width:30px">S/N</th>
+                    <th>SUBJECTS</th>
+                    <th style="width:50px">1<sup>st</sup><br>Test<br>15<br>Marks</th>
+                    <th style="width:50px">2<sup>nd</sup><br>Test<br>15<br>Marks</th>
+                    <th style="width:50px">C.A<br>10<br>Marks</th>
+                    <th style="width:50px">Exam<br>60<br>Marks</th>
+                    <th style="width:60px">TOTAL<br>100<br>Marks</th>
+                    <th style="width:60px">Subject<br>Position</th>
+                    <th style="width:40px">Grade</th>
+                </tr>
                 </thead>
-                <tbody id="subjectRows">
-                    <!-- Generated by JS -->
-                </tbody>
+                <tbody id="subjectRows"></tbody>
             </table>
         </div>
 
-        <!-- Right Side Tables joined seamlessly -->
         <div class="side-tables">
             <table>
                 <thead>
-                    <tr style="background:#004085;color:white; font-size:10px">
-                        <th style="text-align:left; border: 1px solid #000;">Behaviour and activities</th>
-                        <th style="border: 1px solid #000;">A</th>
-                        <th style="border: 1px solid #000;">B</th>
-                        <th style="border: 1px solid #000;">C</th>
-                        <th style="border: 1px solid #000;">D</th>
-                    </tr>
+                <tr style="background:#004085;color:white; font-size:10px">
+                    <th style="text-align:left; border: 1px solid #000;">Behaviour and activities</th>
+                    <th style="border: 1px solid #000;">A</th><th style="border: 1px solid #000;">B</th><th style="border: 1px solid #000;">C</th><th style="border: 1px solid #000;">D</th>
+                </tr>
                 </thead>
-                <tbody id="behaviourRows" style="font-size:10px">
-                    <!-- Generated by JS -->
-                </tbody>
+                <tbody id="behaviourRows" style="font-size:10px"></tbody>
             </table>
 
             <table>
                 <thead>
-                    <tr style="background:#004085;color:white; font-size:10px">
-                        <th style="text-align:left; border: 1px solid #000;">Psychomotor Skill</th>
-                        <th style="border: 1px solid #000;">A</th>
-                        <th style="border: 1px solid #000;">B</th>
-                        <th style="border: 1px solid #000;">C</th>
-                        <th style="border: 1px solid #000;">D</th>
-                    </tr>
+                <tr style="background:#004085;color:white; font-size:10px">
+                    <th style="text-align:left; border: 1px solid #000;">Psychomotor Skill</th>
+                    <th style="border: 1px solid #000;">A</th><th style="border: 1px solid #000;">B</th><th style="border: 1px solid #000;">C</th><th style="border: 1px solid #000;">D</th>
+                </tr>
                 </thead>
-                <tbody id="psychomotorRows" style="font-size:10px">
-                    <!-- Generated by JS -->
-                </tbody>
+                <tbody id="psychomotorRows" style="font-size:10px"></tbody>
             </table>
         </div>
     </div>
@@ -247,7 +234,6 @@
             <div>
                 <p class="red-text">Next Term Fee: ₦<input type="text" id="nextTermFee" style="width:40px; font-weight:bold; border-bottom:none;"> Outstanding Bills: <input type="text" id="outstandingBills" style="width:40px; border-bottom:none;font-weight:bold">Total Dues: <input type="text" id="totalDues" style="width:40px; border-bottom:none;font-weight:bold"></p>
                 <p class="red-text">Next Term Begins: <input type="text" id="nextTermBegins" style="width:150px; color:red; font-weight:bold; border-bottom:1px solid red;"></p>
-                &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
             </div>
         </div>
     </div>
@@ -256,7 +242,7 @@
 <div class="controls">
     <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>
     <button class="btn btn-nav" onclick="goForward()">NEXT</button>
-    <button class="btn btn-save" onclick="submitResult()">SAVE AS PDF</button>
+    <button class="btn btn-save" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
     <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
 </div>
 
@@ -264,11 +250,11 @@
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69af0b88ae596e708f71b09c"; // High School Bin
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/image/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     const SUBJECTS = ["Mathematics", "Comprehension", "Continuous Writing", "Lexis and Structure", "Phonetics", "Literature in English", "Christian Religious Studies", "History", "Business Studies", "Music", "Civic Education", "Social Studies", "Computer Studies", "Basic Science", "Basic Technology", "Home Economics", "Physical Health Education", "Urhobo", "Agricultural Science", "Phone Repair"];
-
     const BEHAVIOURS = ["Punctuality", "Neatness", "Obedience", "Attentiveness", "Participation in Activities", "Ability to work alone", "Politeness", "Relationship with others", "Self-Control", "Sense of Responsibility", "Resourcefulness", "Relationship with Staff"];
-
     const PSYCHOMOTORS = ["Sport", "Creativity", "Musical Skill", "Handling of School Materials", "Public Speaking", "Drawing"];
 
     let pages = [];
@@ -278,18 +264,7 @@
         const subTbody = document.getElementById("subjectRows");
         subTbody.innerHTML = "";
         SUBJECTS.forEach((sub, i) => {
-            const row = `<tr>
-                <td>${i+1}</td>
-                <td style="text-align:left; padding-left: 5px;">${sub}</td>
-                <td><input type="number" id="t1_${i}" oninput="calc()"></td>
-                <td><input type="number" id="t2_${i}" oninput="calc()"></td>
-                <td><input type="number" id="ca_${i}" oninput="calc()"></td>
-                <td><input type="number" id="ex_${i}" oninput="calc()"></td>
-                <td id="total_${i}">0</td>
-                <td><input type="text" id="pos_${i}" readonly></td>
-                <td id="grade_${i}">-</td>
-            </tr>`;
-            subTbody.innerHTML += row;
+            subTbody.innerHTML += `<tr><td>${i+1}</td><td style="text-align:left; padding-left: 5px;">${sub}</td><td><input type="number" id="t1_${i}" oninput="calc()"></td><td><input type="number" id="t2_${i}" oninput="calc()"></td><td><input type="number" id="ca_${i}" oninput="calc()"></td><td><input type="number" id="ex_${i}" oninput="calc()"></td><td id="total_${i}">0</td><td><input type="text" id="pos_${i}" readonly></td><td id="grade_${i}">-</td></tr>`;
         });
 
         const behTbody = document.getElementById("behaviourRows");
@@ -308,22 +283,11 @@
     }
 
     function createEmptyData() {
-        return {
-            name: "", class: "", session: "1ST TERM 2025/2026", position: "", attendance: "", noInClass: "",
-            scores: Array.from({length: 20}, () => [0, 0, 0, 0]), 
-            photo: "", 
-            generalRemark: "",
-            principalComment: "", teacherComment: "",
-            nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "",
-            behaviours: Array.from({length: 12}, () => [false, false, false, false]),
-            psychomotors: Array.from({length: 6}, () => [false, false, false, false])
-        };
+        return { name: "", class: "", session: "1ST TERM 2025/2026", position: "", attendance: "", noInClass: "", scores: Array.from({length: 20}, () => [0, 0, 0, 0]), photo: "", generalRemark: "", principalComment: "", teacherComment: "", nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "", behaviours: Array.from({length: 12}, () => [false, false, false, false]), psychomotors: Array.from({length: 6}, () => [false, false, false, false]) };
     }
 
     function newPage() { saveCurrent(); pages.push(createEmptyData()); currentIndex++; resetFields(); }
-
     function goBack() { if (currentIndex > 0) { saveCurrent(); currentIndex--; restoreData(); } }
-    
     function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; restoreData(); } }
 
     function resetFields() {
@@ -351,31 +315,12 @@
         data.totalDues = document.getElementById("totalDues").value;
         data.nextTermBegins = document.getElementById("nextTermBegins").value;
         data.photo = document.getElementById("photoPreview").src;
-
         data.scores = [];
-        for (let i = 0; i < 20; i++) {
-            data.scores.push([getVal(`t1_${i}`), getVal(`t2_${i}`), getVal(`ca_${i}`), getVal(`ex_${i}`)]);
-        }
-
+        for (let i = 0; i < 20; i++) { data.scores.push([getVal(`t1_${i}`), getVal(`t2_${i}`), getVal(`ca_${i}`), getVal(`ex_${i}`)]); }
         data.behaviours = [];
-        for (let i = 0; i < 12; i++) {
-            data.behaviours.push([
-                document.getElementById(`beh_a_${i}`).checked,
-                document.getElementById(`beh_b_${i}`).checked,
-                document.getElementById(`beh_c_${i}`).checked,
-                document.getElementById(`beh_d_${i}`).checked
-            ]);
-        }
-
+        for (let i = 0; i < 12; i++) { data.behaviours.push([document.getElementById(`beh_a_${i}`).checked, document.getElementById(`beh_b_${i}`).checked, document.getElementById(`beh_c_${i}`).checked, document.getElementById(`beh_d_${i}`).checked]); }
         data.psychomotors = [];
-        for (let i = 0; i < 6; i++) {
-            data.psychomotors.push([
-                document.getElementById(`psy_a_${i}`).checked,
-                document.getElementById(`psy_b_${i}`).checked,
-                document.getElementById(`psy_c_${i}`).checked,
-                document.getElementById(`psy_d_${i}`).checked
-            ]);
-        }
+        for (let i = 0; i < 6; i++) { data.psychomotors.push([document.getElementById(`psy_a_${i}`).checked, document.getElementById(`psy_b_${i}`).checked, document.getElementById(`psy_c_${i}`).checked, document.getElementById(`psy_d_${i}`).checked]); }
     }
 
     function restoreData() {
@@ -394,59 +339,32 @@
         document.getElementById("totalDues").value = data.totalDues || "";
         document.getElementById("nextTermBegins").value = data.nextTermBegins || "";
         document.getElementById("photoPreview").src = data.photo || "";
-
         for (let i = 0; i < 20; i++) {
             const s = data.scores[i];
-            document.getElementById(`t1_${i}`).value = s[0] || "";
-            document.getElementById(`t2_${i}`).value = s[1] || "";
-            document.getElementById(`ca_${i}`).value = s[2] || "";
-            document.getElementById(`ex_${i}`).value = s[3] || "";
+            document.getElementById(`t1_${i}`).value = s[0] || ""; document.getElementById(`t2_${i}`).value = s[1] || ""; document.getElementById(`ca_${i}`).value = s[2] || ""; document.getElementById(`ex_${i}`).value = s[3] || "";
         }
-
-        for (let i = 0; i < 12; i++) {
-            const b = data.behaviours[i];
-            document.getElementById(`beh_a_${i}`).checked = b[0];
-            document.getElementById(`beh_b_${i}`).checked = b[1];
-            document.getElementById(`beh_c_${i}`).checked = b[2];
-            document.getElementById(`beh_d_${i}`).checked = b[3];
-        }
-
-        for (let i = 0; i < 6; i++) {
-            const p = data.psychomotors[i];
-            document.getElementById(`psy_a_${i}`).checked = p[0];
-            document.getElementById(`psy_b_${i}`).checked = p[1];
-            document.getElementById(`psy_c_${i}`).checked = p[2];
-            document.getElementById(`psy_d_${i}`).checked = p[3];
-        }
-
+        for (let i = 0; i < 12; i++) { const b = data.behaviours[i]; document.getElementById(`beh_a_${i}`).checked = b[0]; document.getElementById(`beh_b_${i}`).checked = b[1]; document.getElementById(`beh_c_${i}`).checked = b[2]; document.getElementById(`beh_d_${i}`).checked = b[3]; }
+        for (let i = 0; i < 6; i++) { const p = data.psychomotors[i]; document.getElementById(`psy_a_${i}`).checked = p[0]; document.getElementById(`psy_b_${i}`).checked = p[1]; document.getElementById(`psy_c_${i}`).checked = p[2]; document.getElementById(`psy_d_${i}`).checked = p[3]; }
         calc();
     }
 
     function getVal(id) { const el = document.getElementById(id); return el ? parseFloat(el.value) || 0 : 0; }
-
-    function getOrdinal(n) {
-        let s = ["th", "st", "nd", "rd"], v = n % 100;
-        return n + (s[(v - 20) % 10] || s[v] || s[0]);
-    }
+    function getOrdinal(n) { let s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
 
     function updatePositions() {
         if (currentIndex < 0) return;
-        saveCurrent(); 
-
+        saveCurrent();
         for (let i = 0; i < 20; i++) {
             let subjectTotals = pages.map(p => p.scores[i].reduce((a, b) => a + b, 0));
             let currentTotal = subjectTotals[currentIndex];
             if (currentTotal === 0) { document.getElementById(`pos_${i}`).value = ""; continue; }
-            let rank = 1;
-            subjectTotals.forEach(t => { if (t > currentTotal) rank++; });
+            let rank = 1; subjectTotals.forEach(t => { if (t > currentTotal) rank++; });
             document.getElementById(`pos_${i}`).value = getOrdinal(rank);
         }
-
         let grandTotals = pages.map(p => p.scores.flat().reduce((a, b) => a + b, 0));
         let currentGrandTotal = grandTotals[currentIndex];
         if (currentGrandTotal > 0) {
-            let overallRank = 1;
-            grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
+            let overallRank = 1; grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
             document.getElementById("position").value = getOrdinal(overallRank);
             document.getElementById("noInClass").value = pages.length;
         }
@@ -456,33 +374,21 @@
         let grandTotal = 0;
         for (let i = 0; i < 20; i++) {
             let t1 = getVal(`t1_${i}`), t2 = getVal(`t2_${i}`), ca = getVal(`ca_${i}`), ex = getVal(`ex_${i}`);
-            let total = t1 + t2 + ca + ex;
-            grandTotal += total;
+            let total = t1 + t2 + ca + ex; grandTotal += total;
             document.getElementById(`total_${i}`).innerText = total;
             document.getElementById(`grade_${i}`).innerText = getGrade(total);
         }
         document.getElementById("marksObtained").value = grandTotal;
-        let avg = grandTotal / 20;
-        document.getElementById("averageSpan").innerText = avg.toFixed(2);
+        document.getElementById("averageSpan").innerText = (grandTotal / 20).toFixed(2);
         updatePositions();
     }
 
-    function getGrade(score) {
-        if (score >= 80) return "A";
-        if (score >= 70) return "B";
-        if (score >= 60) return "C";
-        if (score >= 50) return "D";
-        if (score >= 45) return "E";
-        return "F";
-    }
+    function getGrade(score) { if (score >= 80) return "A"; if (score >= 70) return "B"; if (score >= 60) return "C"; if (score >= 50) return "D"; if (score >= 45) return "E"; return "F"; }
 
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('photoPreview').src = e.target.result;
-                saveCurrent();
-            };
+            reader.onload = (e) => { document.getElementById('photoPreview').src = e.target.result; saveCurrent(); };
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -507,15 +413,37 @@
     }
 
     async function saveToWebDatabase(name) {
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Processing PDF..."; btn.disabled = true;
+        document.querySelector('.controls').style.display = 'none';
+        document.getElementById('photoInput').style.display = 'none';
+
         try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('page');
+            const canvas = await html2canvas(element, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const pdfBlob = pdf.output('blob');
+
+            const formData = new FormData();
+            formData.append('file', pdfBlob);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
+
+            const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            const cloudData = await cloudRes.json();
+            const pdfUrl = cloudData.secure_url;
+
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
             const data = await res.json();
             const record = data.record;
-
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|Website-Save`;
+            record[name] = `${code}|${pdfUrl}`;
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
@@ -523,10 +451,13 @@
                 body: JSON.stringify(record)
             });
 
-            alert(`Success! Passcode for ${name} is ${code}. Now saving PDF...`);
-            window.print();
+            alert(`Success! Passcode for ${name} is: ${code}`);
         } catch (e) {
-            alert("Database error. Check internet.");
+            console.error(e); alert("Save failed. Check internet.");
+        } finally {
+            document.querySelector('.controls').style.display = 'flex';
+            document.getElementById('photoInput').style.display = 'block';
+            btn.innerText = "SAVE AS PDF"; btn.disabled = false;
         }
     }
 
