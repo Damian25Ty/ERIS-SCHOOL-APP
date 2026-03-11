@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>ERIS EDUCATION CENTRE Report Sheet</title>
 
-    <!-- Required for Website-side PDF Generation -->
+    <!-- Essential Libraries for Web-side PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -23,7 +23,7 @@
             font-size: 11px;
         }
         #page {
-            width: 950px; /* Wider to accommodate side tables */
+            width: 950px; 
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -138,7 +138,11 @@
 </head>
 <body>
 
-<div id="page">
+<div id="Passcode"><br>
+    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
+    <button id="btn">Open</button>
+</div>
+<div id="page" style="display:none">
     <div class="header">
         <img src="ERIS LOGO.jpg.jpeg" class="logo" alt="Logo">
 
@@ -239,18 +243,34 @@
     </div>
 </div>
 
-<div class="controls">
+<div class="controls" id="controls" style="text-align:center; display:none">
     <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>
     <button class="btn btn-nav" onclick="goForward()">NEXT</button>
-    <button class="btn btn-save" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
     <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
+    <br><br>
+    <button class="btn btn-save" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
 </div>
+
+<script>
+    document.getElementById("btn").onclick = function() {
+        let code = document.getElementById("code").value;
+        if (code === "9131") {
+    document.getElementById("Passcode").style.display = "none";
+    document.getElementById("page").style.display = "block";
+    document.getElementById("controls").style.display = "block";
+    }
+    else{
+    window.alert("Invalid Passcode");
+    }
+    };
+
+</script>
 
 <script>
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69af0b88ae596e708f71b09c"; // High School Bin
-    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/image/upload";
+    const BIN_ID = "69af0b88ae596e708f71b09c"; 
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     const SUBJECTS = ["Mathematics", "Comprehension", "Continuous Writing", "Lexis and Structure", "Phonetics", "Literature in English", "Christian Religious Studies", "History", "Business Studies", "Music", "Civic Education", "Social Studies", "Computer Studies", "Basic Science", "Basic Technology", "Home Economics", "Physical Health Education", "Urhobo", "Agricultural Science", "Phone Repair"];
@@ -414,50 +434,70 @@
 
     async function saveToWebDatabase(name) {
         const btn = document.getElementById('saveBtn');
-        btn.innerText = "Processing PDF..."; btn.disabled = true;
+        btn.innerText = "Processing PDF...";
+        btn.disabled = true;
         document.querySelector('.controls').style.display = 'none';
         document.getElementById('photoInput').style.display = 'none';
 
         try {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
-            const canvas = await html2canvas(element, { scale: 2 });
+            
+            // Capture the content as an image
+            const canvas = await html2canvas(element, { scale: 2, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
+            
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            
+            // Convert to Blob with proper type
             const pdfBlob = pdf.output('blob');
 
+            // Standardized Cloudinary Upload logic
             const formData = new FormData();
-            formData.append('file', pdfBlob);
+            formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('resource_type', 'auto'); 
             formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
 
             const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            if (!cloudRes.ok) throw new Error("Cloudinary upload failed");
+            
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+            // Save the resulting secure URL to JSONBin
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
             const data = await res.json();
             const record = data.record;
+
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
             record[name] = `${code}|${pdfUrl}`;
 
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
+                headers: {
+                    'X-Master-Key': API_KEY,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(record)
             });
 
-            alert(`Success! Passcode for ${name} is: ${code}`);
+            if (!updateRes.ok) throw new Error("Database update failed");
+
+            alert(`Success! PDF created and saved. Passcode for ${name} is: ${code}`);
         } catch (e) {
-            console.error(e); alert("Save failed. Check internet.");
+            console.error(e);
+            alert("Error: " + e.message);
         } finally {
             document.querySelector('.controls').style.display = 'flex';
             document.getElementById('photoInput').style.display = 'block';
-            btn.innerText = "SAVE AS PDF"; btn.disabled = false;
+            btn.innerText = "SAVE AS PDF";
+            btn.disabled = false;
         }
     }
 
