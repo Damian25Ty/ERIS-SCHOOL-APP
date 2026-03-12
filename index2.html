@@ -501,7 +501,7 @@
 
             if (!updateRes.ok) throw new Error("Database update failed");
 
-            alert(`Success! High-quality PDF created and saved. Passcode for ${name} is: ${code}`);
+            alert(`${name} High-quality PDF created and saved Successfully! );
         } catch (e) {
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
