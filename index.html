@@ -394,7 +394,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // Capture the content as an image
+            // Capture screenshot
             const canvas = await html2canvas(element, { scale: 2, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
             
@@ -403,10 +403,9 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            // Convert to Blob with proper type
             const pdfBlob = pdf.output('blob');
 
-            // Standardized Cloudinary Upload logic
+            // 1. Upload to Cloudinary
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -419,16 +418,20 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            // Save the resulting secure URL to JSONBin
+            // 2. Fetch Latest Database Record
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
-            const data = await res.json();
-            const record = data.record;
+            if (!res.ok) throw new Error("Could not fetch database");
+            
+            const dbData = await res.json();
+            const record = dbData.record;
 
+            // 3. Update Record
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
             record[name] = `${code}|${pdfUrl}`;
 
+            // 4. Save Back to JSONBin
             const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: {
@@ -440,7 +443,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
             if (!updateRes.ok) throw new Error("Database update failed");
 
-            alert(`Success! PDF created and saved. Passcode for ${name} is: ${code}`);
+            alert(`Result successfully saved! Passcode for ${name} is: ${code}`);
         } catch (e) {
             console.error(e);
             alert("Error: " + e.message);
