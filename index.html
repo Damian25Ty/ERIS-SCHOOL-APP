@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Student Result System</title>
 
+    <!-- Essential Libraries for Web-side PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         :root {
             --primary-color: #000080; /* Dark Blue */
@@ -55,17 +59,16 @@
         h2 { font-size: 1em; color: var(--secondary-color); text-align: center; margin-top: 0; margin-bottom: 20px; }
 
        table {
-    table-layout: autofit-content;
-    width: 100%;
-}
+            table-layout: autofit-content;
+            width: 100%;
+        }
 
-th:nth-child(1), td:nth-child(1) { width: 30%; }  /* SUBJECT */
-th:nth-child(2), td:nth-child(2) { width: 12%; }  /* 1st Test */
-th:nth-child(3), td:nth-child(3) { width: 12%; }  /* 2nd Test */
-th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Exam */
-th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Total */
-th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
-
+        th:nth-child(1), td:nth-child(1) { width: 30%; }  /* SUBJECT */
+        th:nth-child(2), td:nth-child(2) { width: 12%; }  /* 1st Test */
+        th:nth-child(3), td:nth-child(3) { width: 12%; }  /* 2nd Test */
+        th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Exam */
+        th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Total */
+        th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
         th { background-color: var(--primary-color); color: var(--white); font-size: 0.85em; }
@@ -75,20 +78,20 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
         .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .header-grid div {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-.header-grid label {
-    white-space: nowrap;
-    font-size: 10px;
-}
+        .header-grid label {
+            white-space: nowrap;
+            font-size: 10px;
+        }
 
-.header-grid input {
-    flex: 1;
-    font-size: 10px;
-}
+        .header-grid input {
+            flex: 1;
+            font-size: 10px;
+        }
 
         .header-grid label { font-weight: bold; margin-bottom: 2px; color: var(--primary-color); }
         .header-grid input { background-color: #f9f9f9; }
@@ -101,8 +104,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         .btn, .nav button { border: none; padding: 12px 20px; font-size: 1em; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
         .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-bottom: 10px; }
         .btn:hover { background: #218838; }
-        .nav { display: flex; justify-content: space-between; margin-top: 20px; }
-        .nav button { background-color: #007bff; color: var(--white); }
+        .nav { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
+        .nav button { background-color: #007bff; color: var(--white); flex: 1; }
 
         @media (max-width: 600px) {
             body { padding: 10px; font-size: 11px; }
@@ -112,7 +115,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         }
 
         @media print {
-            .btn, .nav, .photo-input, #Passcode { display: none !important; }
+            .btn, .nav, .photo-input, #Passcode, #controls { display: none !important; }
             body { background: white; padding: 0; }
             #page { box-shadow: none; width: 100%; margin: 0; }
         }
@@ -130,12 +133,11 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     document.getElementById("btn").onclick = function() {
         let code = document.getElementById("code").value;
         if (code === "08008") {
-    document.getElementById("Passcode").style.display = "none";
-    document.getElementById("page").style.display = "block";
-    }
-    else{
-    window.alert("Invalid Passcode");
-    }
+            document.getElementById("Passcode").style.display = "none";
+            document.getElementById("page").style.display = "block";
+        } else {
+            window.alert("Invalid Passcode");
+        }
     };
 </script>
 
@@ -143,6 +145,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     let pages = [];
     let currentIndex = -1;
@@ -311,8 +315,12 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
             </div>
 
-            <button class="btn" onclick="submitResult()">SAVE AS PDF</button>
-            <div class="nav"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
+            <div class="nav" id="controls">
+                <button onclick="goBack()">⬅️ Prev</button>
+                <button onclick="goForward()">➡️ Next</button>
+                <button onclick="newPage()">➕ New</button>
+                <button class="btn" id="saveBtn" onclick="submitResult()" style="flex: 2; margin-bottom: 0;">SAVE AS PDF</button>
+            </div>
         `;
     }
 
@@ -335,7 +343,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         document.getElementById("photoPreview").src = data.photo || "";
         for (let i = 0; i < 23; i++) {
             const scores = data.scores[i];
-            if(document.getElementById(`t1_${i+1}`)){ // check if element exists
+            if(document.getElementById(`t1_${i+1}`)){ 
                 document.getElementById(`t1_${i+1}`).value = scores[0];
                 document.getElementById(`t2_${i+1}`).value = scores[1];
                 document.getElementById(`ex_${i+1}`).value = scores[2];
@@ -351,8 +359,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
         if (typeof Android !== "undefined") {
             // APP VERSION
-            document.querySelector('.btn').style.display = 'none';
-            document.querySelector('.nav').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
             document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0, 0);
 
@@ -367,27 +375,67 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     }
 
     async function saveToWebDatabase(name) {
+        const btn = document.getElementById('saveBtn');
+        const controls = document.getElementById('controls');
+        const photoInput = document.getElementById('photoInput');
+
+        if(btn) { btn.innerText = "Processing High-Quality PDF..."; btn.disabled = true; }
+        if(controls) controls.style.display = 'none';
+        if(photoInput) photoInput.style.display = 'none';
+
         try {
-            // 1. Get latest record
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('page');
+
+            // High Quality Generation
+            const canvas = await html2canvas(element, { scale: 4.0, useCORS: true });
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            
+            const pdf = new jsPDF({
+                orientation: 'p',
+                unit: 'mm',
+                format: 'a4',
+                compress: false 
+            });
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            
+            const pdfBlob = pdf.output('blob');
+
+            // Cloudinary Upload
+            const formData = new FormData();
+            formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('resource_type', 'auto');
+            formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
+
+            const cloudRes = await fetch(CLOUDINARY_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!cloudRes.ok) {
+                const errorData = await cloudRes.json();
+                throw new Error(errorData.error.message || "Cloudinary Upload Failed");
+            }
+
+            const cloudData = await cloudRes.json();
+            const pdfUrl = cloudData.secure_url;
+
+            // Database logic
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
-            const data = await res.json();
-            const record = data.record;
+            const dbData = await res.json();
+            const record = dbData.record;
 
-            // 2. Generate passcode if new
-            let code = "1000";
-            if (record[name]) {
-                code = record[name].split("|")[0];
-            } else {
-                code = Math.floor(1000 + Math.random() * 9000).toString();
-            }
+            let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
+            record[name] = `${code}|${pdfUrl}`;
 
-            // 3. Update record (URL is empty because website can't auto-upload to Cloudinary yet)
-            record[name] = `${code}|Website-Save`;
-
-            // 4. Save back to JsonBin
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            // Save back to JsonBin
+            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: {
                     'X-Master-Key': API_KEY,
@@ -396,17 +444,22 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 body: JSON.stringify(record)
             });
 
-            alert(`Result saved to database! Passcode for ${name} is: ${code}. You can now save the PDF manually.`);
-            window.print(); // Let user save the PDF file locally
+            if (!updateRes.ok) throw new Error("Database update failed");
+
+            alert(`${name} High-quality PDF created and saved Successfully! Passcode is: ${code}`);
         } catch (e) {
-            alert("Database save failed. Check your internet.");
+            console.error("WEB_SAVE_ERROR:", e);
+            alert("Error: " + e.message);
+        } finally {
+            if(controls) controls.style.display = 'flex';
+            if(photoInput) photoInput.style.display = 'block';
+            if(btn) { btn.innerText = "SAVE AS PDF"; btn.disabled = false; }
         }
     }
 
     function showButtons() {
-        document.querySelector('.btn').style.display = 'block';
-        document.querySelector('.nav').style.display = 'flex';
-        document.getElementById('photoInput').style.display = 'block';
+        if(document.getElementById('controls')) document.getElementById('controls').style.display = 'flex';
+        if(document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
     }
 </script>
 </body>
