@@ -255,22 +255,20 @@
     document.getElementById("btn").onclick = function() {
         let code = document.getElementById("code").value;
         if (code === "9131") {
-    document.getElementById("Passcode").style.display = "none";
-    document.getElementById("page").style.display = "block";
-    document.getElementById("controls").style.display = "block";
-    }
-    else{
-    window.alert("Invalid Passcode");
-    }
+            document.getElementById("Passcode").style.display = "none";
+            document.getElementById("page").style.display = "block";
+            document.getElementById("controls").style.display = "block";
+        } else {
+            window.alert("Invalid Passcode");
+        }
     };
-
 </script>
 
 <script>
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69af0b88ae596e708f71b09c"; 
-    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/auto/upload"; 
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     const SUBJECTS = ["Mathematics", "Comprehension", "Continuous Writing", "Lexis and Structure", "Phonetics", "Literature in English", "Christian Religious Studies", "History", "Business Studies", "Music", "Civic Education", "Social Studies", "Computer Studies", "Basic Science", "Basic Technology", "Home Economics", "Physical Health Education", "Urhobo", "Agricultural Science", "Phone Repair"];
@@ -419,12 +417,12 @@
         if (!name) { alert("Enter Student Name"); return; }
 
         if (typeof Android !== "undefined") {
-            document.querySelector('.controls').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
             document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0,0);
             setTimeout(() => {
                 Android.savePDF(name, document.documentElement.outerHTML);
-                document.querySelector('.controls').style.display = 'flex';
+                document.getElementById('controls').style.display = 'block';
                 document.getElementById('photoInput').style.display = 'block';
             }, 500);
         } else {
@@ -436,14 +434,14 @@
         const btn = document.getElementById('saveBtn');
         btn.innerText = "Processing PDF...";
         btn.disabled = true;
-        document.querySelector('.controls').style.display = 'none';
+        document.getElementById('controls').style.display = 'none';
         document.getElementById('photoInput').style.display = 'none';
 
         try {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // Capture the content as an image
+            // Capture image with higher scale
             const canvas = await html2canvas(element, { scale: 2, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
             
@@ -452,23 +450,29 @@
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             
-            // Convert to Blob with proper type
             const pdfBlob = pdf.output('blob');
 
-            // Standardized Cloudinary Upload logic
+            // Robust Cloudinary Upload
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
             formData.append('resource_type', 'auto'); 
             formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
 
-            const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-            if (!cloudRes.ok) throw new Error("Cloudinary upload failed");
+            const cloudRes = await fetch(CLOUDINARY_URL, { 
+                method: 'POST', 
+                body: formData 
+            });
+            
+            if (!cloudRes.ok) {
+                const errorData = await cloudRes.json();
+                throw new Error(errorData.error.message || "Cloudinary Upload Failed");
+            }
             
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            // Save the resulting secure URL to JSONBin
+            // Database logic
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
@@ -491,10 +495,10 @@
 
             alert(`Success! PDF created and saved. Passcode for ${name} is: ${code}`);
         } catch (e) {
-            console.error(e);
+            console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
         } finally {
-            document.querySelector('.controls').style.display = 'flex';
+            document.getElementById('controls').style.display = 'block';
             document.getElementById('photoInput').style.display = 'block';
             btn.innerText = "SAVE AS PDF";
             btn.disabled = false;
