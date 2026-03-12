@@ -27,7 +27,7 @@
             font-size: 12px;
         }
 
-        #page { width: 200%; max-width: 800px; margin: 0 auto; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+        #page { width: 100%; max-width: 800px; margin: 0 auto; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
 
         .passport-photo {
             position: absolute;
@@ -59,25 +59,19 @@
         h2 { font-size: 1em; color: var(--secondary-color); text-align: center; margin-top: 0; margin-bottom: 20px; }
 
        table {
-    table-layout: autofit-content;
+    table-layout: auto;
     width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
 }
-
-th:nth-child(1), td:nth-child(1) { width: 30%; }  /* SUBJECT */
-th:nth-child(2), td:nth-child(2) { width: 12%; }  /* 1st Test */
-th:nth-child(3), td:nth-child(3) { width: 12%; }  /* 2nd Test */
-th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Exam */
-th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Total */
-th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
-
 
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
         th { background-color: var(--primary-color); color: var(--white); font-size: 0.85em; }
         td { font-size: 0.9em; }
 
-        input[type="text"], input[type="number"] { width: 100%; padding: 6px; text-align: center; border: 0px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 6px; text-align: center; border: 1px solid #eee; border-radius: 4px; box-sizing: border-box; }
 
-        .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; margin-top: 80px; }
         .header-grid div {
     display: flex;
     align-items: center;
@@ -87,33 +81,23 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 .header-grid label {
     white-space: nowrap;
     font-size: 10px;
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
 .header-grid input {
     flex: 1;
     font-size: 10px;
+    background-color: #f9f9f9;
 }
 
-        .header-grid label { font-weight: bold; margin-bottom: 2px; color: var(--primary-color); }
-        .header-grid input { background-color: #f9f9f9; }
-
         .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-weight: bold; margin: 20px 0; }
-
-        .affective-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .affective-grid h3 { text-align: center; color: var(--primary-color); }
 
         .btn, .nav button { border: none; padding: 12px 20px; font-size: 1em; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
         .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-bottom: 10px; }
         .btn:hover { background: #218838; }
         .nav { display: flex; justify-content: space-between; margin-top: 20px; }
         .nav button { background-color: #007bff; color: var(--white); }
-
-        @media (max-width: 600px) {
-            body { padding: 10px; font-size: 11px; }
-            #page { padding: 10px; }
-            td, th { padding: 4px; }
-            .totals-grid { grid-template-columns: 1fr; }
-        }
 
         @media print {
             .btn, .nav, .photo-input, #Passcode { display: none !important; }
@@ -124,27 +108,26 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
 </head>
 <body>
-<div id="Passcode"><br>
-    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
-    <button id="btn">Open</button>
+<div id="Passcode" style="text-align: center; margin-top: 50px;"><br>
+    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br><br>
+    <button id="openBtn" class="btn" style="width: 120px;">Open</button>
 </div>
+
 <div id="page" style="display:none"></div>
 
 <script>
-    document.getElementById("btn").onclick = function() {
+    document.getElementById("openBtn").onclick = function() {
         let code = document.getElementById("code").value;
         if (code === "08008") {
-    document.getElementById("Passcode").style.display = "none";
-    document.getElementById("page").style.display = "block";
-    }
-    else{
-    window.alert("Invalid Passcode");
-    }
+            document.getElementById("Passcode").style.display = "none";
+            document.getElementById("page").style.display = "block";
+        } else {
+            window.alert("Invalid Passcode");
+        }
     };
 </script>
 
 <script>
-    // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69a08ed7d0ea881f40dc82ff";
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
@@ -178,7 +161,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
     function getVal(id) { const el = document.getElementById(id); return el ? parseInt(el.value) || 0 : 0; }
 
-    function render() { document.getElementById("page").innerHTML = buildPage(); restoreData(); calc(); }
+    function render() { document.getElementById("page").innerHTML = buildPageContent(); restoreData(); calc(); }
 
     function getOrdinal(n) {
         let s = ["th", "st", "nd", "rd"], v = n % 100;
@@ -188,17 +171,14 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function updatePositions() {
         if (currentIndex < 0) return;
         saveCurrent();
-
         let grandTotals = pages.map(p => p.scores.reduce((sum, s) => sum + s[0] + s[1] + s[2], 0));
         let currentGrandTotal = grandTotals[currentIndex];
-
         if (currentGrandTotal > 0) {
             let overallRank = 1;
             grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
-
             const posEl = document.getElementById("position");
-            const sizeEl = document.getElementById("classSize");
             if (posEl) posEl.value = getOrdinal(overallRank);
+            const sizeEl = document.getElementById("classSize");
             if (sizeEl) sizeEl.value = pages.length;
         }
     }
@@ -207,7 +187,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         let overallTotal = 0, maxOverallMark = 0;
         for (let i = 1; i <= 23; i++) {
             let t1 = getVal(`t1_${i}`), t2 = getVal(`t2_${i}`), ex = getVal(`ex_${i}`), total, maxMark;
-            if (i >= 21) { maxMark = 50; } else { maxMark = 100; }
+            maxMark = (i >= 21) ? 50 : 100;
             total = t1 + t2 + ex;
             overallTotal += total;
             maxOverallMark += maxMark;
@@ -217,7 +197,6 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         let average = maxOverallMark > 0 ? (overallTotal / maxOverallMark) * 100 : 0;
         if(document.getElementById("overall")) document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
         if(document.getElementById("average")) document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
-
         updatePositions();
     }
 
@@ -226,14 +205,23 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('photoPreview').src = e.target.result;
-            }
+            reader.onload = function(e) { document.getElementById('photoPreview').src = e.target.result; saveCurrent(); }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    function buildPage() {
+    function row(name, n) {
+        return `<tr>
+            <td style="text-align:left;">${name}</td>
+            <td><input type="number" id="t1_${n}" oninput="calc()" style="font-size:11px;"></td>
+            <td><input type="number" id="t2_${n}" oninput="calc()" style="font-size:11px;"></td>
+            <td><input type="number" id="ex_${n}" oninput="calc()" style="font-size:11px;"></td>
+            <td id="total_${n}">0</td>
+            <td id="remark_${n}">-</td>
+        </tr>`;
+    }
+
+    function buildPageContent() {
         const subjectsPart1 = SUBJECTS.slice(0, 20).map((name, i) => row(name, i + 1)).join('');
         const subjectsPart2 = SUBJECTS.slice(20).map((name, i) => row(name, i + 21)).join('');
 
@@ -244,16 +232,16 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             <input type="file" class="photo-input" id="photoInput" accept="image/*" onchange="handlePhoto(this)">
 
             <h1>ERIS EDUCATIONAL CENTRE</h1>
-            <h2>PRE-NURSERY, NURSERY, PRIMARY AND HIGH SCHOOL<br>2, ERIGHA DRIVE, OFF SAPELE-WARRI ROAD BEHIND GT BANK SAPELE, DELTA STATE</h2>
-            <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px;">REPORT SHEET</mark></div>
+            <h2 style="font-size: 0.9em;">PRE-NURSERY, NURSERY, PRIMARY AND HIGH SCHOOL<br>2, ERIGHA DRIVE, OFF SAPELE-WARRI ROAD BEHIND GT BANK SAPELE, DELTA STATE</h2>
+            <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px; font-weight: bold;">REPORT SHEET</mark></div>
 
             <div class="header-grid">
-                <div><label for="studentName" style="font-size:11px">STUDENT NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="studentClass"style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="session"style="font-size:11px">SESSION:</label><input id="session" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="position"style="font-size:11px">POSITION:</label><input id="position" type="text" style="font-size:11px;width:fit-content" readonly></div>
-                <div><label for="attendance"style="font-size:11px">NO OF ATTENDANCE:</label><input id="attendance" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="classSize"style="font-size:11px">NO IN CLASS:</label><input id="classSize" type="text" style="font-size:11px;width:fit-content" readonly></div>
+                <div><label>STUDENT NAME:</label><input id="studentName" type="text"></div>
+                <div><label>CLASS:</label><input id="studentClass" type="text"></div>
+                <div><label>SESSION:</label><input id="session" type="text"></div>
+                <div><label>POSITION:</label><input id="position" type="text" readonly></div>
+                <div><label>NO OF ATTENDANCE:</label><input id="attendance" type="text"></div>
+                <div><label>NO IN CLASS:</label><input id="classSize" type="text" readonly></div>
             </div>
 
             <table>
@@ -266,77 +254,27 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             </table>
 
             <div class="totals-grid">
-                <div id="overall" style="font-size:10px";>MARKS OBTAINED: 0 / 2150</div>
-                <div id="average" style="font-size:10px";>AVERAGE: 0%</div>
+                <div id="overall" style="font-size:11px;">MARKS OBTAINED: 0 / 2150</div>
+                <div id="average" style="font-size:11px;">AVERAGE: 0%</div>
             </div>
-            <label>Class Teacher's Comment:</label> <input type="text" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
-            <label"> <br>
-            &emsp;&emsp;<label style="font-size:10px;">AFFECTIVE REPORT &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;PSYCHOMOTOR REPORT</label>
-            <table style="width:60%;">
-            <tr style="background:darkblue;color:white;font-weight:bold;font-size:11px; text-align:left;">
-            <td style="width:10%;">BEHAVIOUR AND ACTIVITIES</td> <td style="width:2%;">A</td><td style="width:2%;">B</td><td style="width:2%;">C</td><td style="width:2%;">D</td> <td style="width:7.5%;">SKILLS</td> <td style="width:2%;">A</td><td style="width:2%;">B</td><td style="width:2%;">C</td><td style="width:2%;">D</td>
-            </tr>
-            <tr>
-            <td style="width:10%; font-size:8px; text-align:left">PUNTUALITY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">CREATIVITY</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-              <tr>
-            <td style="width:10%; font-size:10px; text-align:left">NEATNESS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">GAMES</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-            <tr>
-            <td style="width:10%; font-size:8px; text-align:left">OBEDIENCE</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">SPORTS</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">ATTENTIVENESS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">MUSICAL SKILLS</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">PARTICIPATION IN CLASS ACTIVITIES</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">GRADES/REMARK 80-100-EXCELLENT</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">HONESTY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">70-79-VERY GOOD</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">RELATIONSHIP WITH OTHERS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">60-69-GOOD</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">SELF CONTROL</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">50-59-AVERAGE</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">SENSE OF RESPONSIBILITY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">41-49-FAIR</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">RELATIONSHIP WITH STAFF</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">0-40-FAILED</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-            </table>
-
-            <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top:20px;">
-                <u>
-                    <p>Head Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Next Term Fees: <input type="text" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Class Teacher's Remark/Signature: <input type="text" style="width:60%; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Next Term Begins: 11th of January 2025 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" alt=""></p>
-                </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
+            
+            <p style="margin-top: 20px; font-size: 11px;">Class Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #333;"></p>
+            
+            <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top:20px; font-size: 11px;">
+                <p>Head Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
+                <p>Next Term Fees: <input type="text" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
+                <p>Next Term Begins: 11th of January 2025 &emsp;&emsp;&emsp; <label style="float:right;">STAMP & SIGNATURE</label></p>
             </div>
 
-            <div id="controls">
+            <div id="controls" style="margin-top: 30px;">
                 <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
-            </div>
-            <div id="navigation" class="nav">
-                <button onclick="goBack()">⬅️ Prev</button>
-                <button onclick="goForward()">➡️ Next</button>
-                <button onclick="newPage()">➕ New</button>
+                <div class="nav" style="display: flex; justify-content: space-between;">
+                    <button onclick="goBack()" style="background:#007bff; color:white; padding:10px; border-radius:5px; border:none;">⬅️ Prev</button>
+                    <button onclick="goForward()" style="background:#007bff; color:white; padding:10px; border-radius:5px; border:none;">➡️ Next</button>
+                    <button onclick="newPage()" style="background:#007bff; color:white; padding:10px; border-radius:5px; border:none;">➕ New</button>
+                </div>
             </div>
         `;
-    }
-
-    function row(name, n) {
-        return `<tr>
-            <td style="text-align:left;">${name}</td>
-            <td><input type="number" id="t1_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td><input type="number" id="t2_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td><input type="number" id="ex_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td id="total_${n}">0</td>
-            <td id="remark_${n}">-</td>
-        </tr>`;
     }
 
     function restoreData() {
@@ -347,7 +285,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         document.getElementById("photoPreview").src = data.photo || "";
         for (let i = 0; i < 23; i++) {
             const scores = data.scores[i];
-            if(document.getElementById(`t1_${i+1}`)){ // check if element exists
+            if(document.getElementById(`t1_${i+1}`)){
                 document.getElementById(`t1_${i+1}`).value = scores[0];
                 document.getElementById(`t2_${i+1}`).value = scores[1];
                 document.getElementById(`ex_${i+1}`).value = scores[2];
@@ -357,19 +295,17 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     }
 
     function hideButtons() {
-        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'none';
-        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'none';
-        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'none';
+        document.getElementById('controls').style.display = 'none';
+        document.getElementById('photoInput').style.display = 'none';
     }
 
     function showButtons() {
-        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'block';
-        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'flex';
-        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
+        document.getElementById('controls').style.display = 'block';
+        document.getElementById('photoInput').style.display = 'block';
     }
 
     function submitResult() {
-        calc();
+        saveCurrent();
         let studentName = document.getElementById("studentName").value.trim();
         if (studentName === "") { alert("Please enter student name!"); return; }
 
@@ -378,6 +314,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             window.scrollTo(0, 0);
             setTimeout(() => {
                 Android.savePDF(studentName, document.documentElement.outerHTML);
+                showButtons();
             }, 500);
         } else {
             saveToWebDatabase(studentName);
@@ -394,70 +331,42 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // Optimized capture: scale 1.2 instead of 2 to reduce file size
+            // Size optimized capture
             const canvas = await html2canvas(element, { scale: 1.2, useCORS: true });
-            
-            // Use JPEG with 0.6 quality instead of PNG to drastically reduce file size
             const imgData = canvas.toDataURL('image/jpeg', 0.6);
             
-            const pdf = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: 'a4',
-                compress: true // Enable compression
-            });
-            
+            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4', compress: true });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            
             const pdfBlob = pdf.output('blob');
 
-            // Robust Cloudinary Upload
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
             formData.append('resource_type', 'auto'); 
             formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
 
-            const cloudRes = await fetch(CLOUDINARY_URL, { 
-                method: 'POST', 
-                body: formData 
-            });
-            
-            if (!cloudRes.ok) {
-                const errorData = await cloudRes.json();
-                throw new Error(errorData.error.message || "Cloudinary Upload Failed");
-            }
-            
+            const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            if (!cloudRes.ok) throw new Error("Upload failed");
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            // Database logic
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
             const data = await res.json();
             const record = data.record;
-
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
             record[name] = `${code}|${pdfUrl}`;
 
-            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: {
-                    'X-Master-Key': API_KEY,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
                 body: JSON.stringify(record)
             });
 
-            if (!updateRes.ok) throw new Error("Database update failed");
-
-            alert(`Success! PDF created and saved. Passcode for ${name} is: ${code}`);
+            alert(`Success! Result saved. Passcode for ${name} is: ${code}`);
         } catch (e) {
-            console.error("WEB_SAVE_ERROR:", e);
-            alert("Error: " + e.message);
+            alert("Error saving: " + e.message);
         } finally {
             showButtons();
             btn.innerText = "SAVE AS PDF";
