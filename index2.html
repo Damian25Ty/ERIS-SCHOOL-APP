@@ -441,17 +441,17 @@
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // Optimized capture: scale 1.5 instead of 2 to reduce file size
-            const canvas = await html2canvas(element, { scale: 1.5, useCORS: true });
+            // Critical size fix: scale 1.0 instead of 1.5/2.0
+            const canvas = await html2canvas(element, { scale: 1.0, useCORS: true });
             
-            // Use JPEG with 0.7 quality instead of PNG to drastically reduce file size
-            const imgData = canvas.toDataURL('image/jpeg', 0.7);
+            // JPEG with 0.5 quality for maximum compression
+            const imgData = canvas.toDataURL('image/jpeg', 0.5);
             
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: true // Enable compression
+                compress: true 
             });
             
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -460,7 +460,11 @@
             
             const pdfBlob = pdf.output('blob');
 
-            // Robust Cloudinary Upload
+            // Check size locally before upload
+            if (pdfBlob.size > 10 * 1024 * 1024) {
+                throw new Error("File still too large. Try reducing photo size.");
+            }
+
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -480,7 +484,6 @@
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            // Database logic
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
