@@ -21,20 +21,30 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
             margin: 0;
-            padding: 15px;
+            padding: 5px;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-size: 12px;
+            font-size: 10px;
         }
 
-        #page { width: 200%; max-width: 800px; margin: 0 auto; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+        #page { 
+            width: 100%; 
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            box-sizing: border-box;
+        }
 
         .passport-photo {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 100px;
-            height: 100px;
+            top: 10px;
+            left: 10px;
+            width: 80px;
+            height: 80px;
             border: 1px solid #ccc;
             display: flex;
             align-items: center;
@@ -49,83 +59,65 @@
         }
         .photo-input {
             position: absolute;
-            top: 100px;
-            left: 20px;
-            font-size: 10px;
-            width: 150px;
+            top: 95px;
+            left: 10px;
+            font-size: 8px;
+            width: 100px;
         }
 
-        h1 { font-size: 1.3em; color: var(--primary-color); text-align: center; margin-bottom: 5px; }
-        h2 { font-size: 1em; color: var(--secondary-color); text-align: center; margin-top: 0; margin-bottom: 20px; }
+        h1 { font-size: 1.1em; color: var(--primary-color); text-align: center; margin: 0 0 2px 0; }
+        h2 { font-size: 0.85em; color: var(--secondary-color); text-align: center; margin: 0 0 5px 0; line-height: 1.1; }
 
-       table {
-            table-layout: autofit-content;
+        table {
             width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
         }
 
-        th:nth-child(1), td:nth-child(1) { width: 30%; }  /* SUBJECT */
-        th:nth-child(2), td:nth-child(2) { width: 12%; }  /* 1st Test */
-        th:nth-child(3), td:nth-child(3) { width: 12%; }  /* 2nd Test */
-        th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Exam */
-        th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Total */
-        th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
+        th, td { border: 1px solid #ccc; padding: 2px; text-align: center; vertical-align: middle; }
+        th { background-color: var(--primary-color); color: var(--white); font-size: 0.8em; }
+        td { font-size: 0.85em; }
 
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
-        th { background-color: var(--primary-color); color: var(--white); font-size: 0.85em; }
-        td { font-size: 0.9em; }
-
-        input[type="text"], input[type="number"] { width: 100%; padding: 6px; text-align: center; border: 0px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-
-        .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .header-grid div {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .header-grid label {
-            white-space: nowrap;
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 2px;
+            text-align: center;
+            border: none;
+            box-sizing: border-box;
+            background: transparent;
             font-size: 10px;
         }
+        input:focus { background: #fff9c4; outline: none; }
 
-        .header-grid input {
-            flex: 1;
-            font-size: 10px;
+        .header-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 5px;
+            padding-left: 100px; /* Space for photo */
         }
+        .header-grid div { display: flex; align-items: center; gap: 3px; }
+        .header-grid label { white-space: nowrap; font-weight: bold; color: var(--primary-color); font-size: 9px; }
+        .header-grid input { border-bottom: 1px solid #ddd; text-align: left; }
 
-        .header-grid label { font-weight: bold; margin-bottom: 2px; color: var(--primary-color); }
-        .header-grid input { background-color: #f9f9f9; }
+        .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-weight: bold; margin: 5px 0; padding: 2px 0; }
 
-        .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-weight: bold; margin: 20px 0; }
-
-        .affective-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .affective-grid h3 { text-align: center; color: var(--primary-color); }
-
-        .btn, .nav button { border: none; padding: 12px 20px; font-size: 1em; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
-        .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-bottom: 10px; }
-        .btn:hover { background: #218838; }
-        .nav { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
+        .btn, .nav button { border: none; padding: 8px 12px; font-size: 10px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+        .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-top: 5px; }
+        .nav { display: flex; justify-content: space-between; margin-top: 5px; gap: 5px; }
         .nav button { background-color: #007bff; color: var(--white); flex: 1; }
 
-        @media (max-width: 600px) {
-            body { padding: 10px; font-size: 11px; }
-            #page { padding: 10px; }
-            td, th { padding: 4px; }
-            .totals-grid { grid-template-columns: 1fr; }
-        }
-
         @media print {
-            .btn, .nav, .photo-input, #Passcode, #controls { display: none !important; }
+            .btn, .nav, .photo-input, #Passcode { display: none !important; }
             body { background: white; padding: 0; }
-            #page { box-shadow: none; width: 100%; margin: 0; }
+            #page { box-shadow: none; width: 100%; margin: 0; padding: 5px; }
         }
     </style>
-
 </head>
 <body>
 <div id="Passcode"><br>
-    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
-    <button id="btn">Open</button>
+    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px; border: 1px solid #ccc;"><br>
+    <button id="btn" style="margin-top: 10px; padding: 5px 20px; cursor: pointer;">Open</button>
 </div>
 <div id="page" style="display:none"></div>
 
@@ -145,7 +137,7 @@
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69a08ed7d0ea881f40dc82ff";
-    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     let pages = [];
@@ -160,7 +152,7 @@
     function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; render(); } }
 
     function createEmptyData() {
-        return { name: "", class: "", session: "", position: "", attendance: "", classSize: "", scores: Array(23).fill([0, 0, 0]), photo: "" };
+        return { name: "", class: "", session: "", position: "", attendance: "", classSize: "", scores: Array.from({length: 23}, () => [0, 0, 0]), photo: "", teacherComment: "", headComment: "", nextFees: "", remarkSig: "" };
     }
 
     function saveCurrent() {
@@ -168,7 +160,13 @@
         let data = pages[currentIndex];
         data.name = document.getElementById("studentName") ? document.getElementById("studentName").value : "";
         data.class = document.getElementById("studentClass") ? document.getElementById("studentClass").value : "";
+        data.session = document.getElementById("session") ? document.getElementById("session").value : "";
+        data.attendance = document.getElementById("attendance") ? document.getElementById("attendance").value : "";
         data.photo = document.getElementById("photoPreview") ? document.getElementById("photoPreview").src : "";
+        data.teacherComment = document.getElementById("teacherComment") ? document.getElementById("teacherComment").value : "";
+        data.headComment = document.getElementById("headComment") ? document.getElementById("headComment").value : "";
+        data.nextFees = document.getElementById("nextFees") ? document.getElementById("nextFees").value : "";
+        data.remarkSig = document.getElementById("remarkSig") ? document.getElementById("remarkSig").value : "";
         for (let i = 0; i < 23; i++) {
             data.scores[i] = [getVal(`t1_${i+1}`), getVal(`t2_${i+1}`), getVal(`ex_${i+1}`)];
         }
@@ -186,14 +184,11 @@
     function updatePositions() {
         if (currentIndex < 0) return;
         saveCurrent();
-
         let grandTotals = pages.map(p => p.scores.reduce((sum, s) => sum + s[0] + s[1] + s[2], 0));
         let currentGrandTotal = grandTotals[currentIndex];
-
         if (currentGrandTotal > 0) {
             let overallRank = 1;
             grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
-
             const posEl = document.getElementById("position");
             const sizeEl = document.getElementById("classSize");
             if (posEl) posEl.value = getOrdinal(overallRank);
@@ -205,17 +200,20 @@
         let overallTotal = 0, maxOverallMark = 0;
         for (let i = 1; i <= 23; i++) {
             let t1 = getVal(`t1_${i}`), t2 = getVal(`t2_${i}`), ex = getVal(`ex_${i}`), total, maxMark;
-            if (i >= 21) { maxMark = 50; } else { maxMark = 100; }
+            maxMark = (i >= 21) ? 50 : 100;
             total = t1 + t2 + ex;
             overallTotal += total;
             maxOverallMark += maxMark;
-            document.getElementById(`total_${i}`).innerText = total;
-            document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
+            const tEl = document.getElementById(`total_${i}`);
+            const rEl = document.getElementById(`remark_${i}`);
+            if (tEl) tEl.innerText = total;
+            if (rEl) rEl.innerText = getRemark(total, maxMark);
         }
         let average = maxOverallMark > 0 ? (overallTotal / maxOverallMark) * 100 : 0;
-        document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
-        document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
-
+        const ovEl = document.getElementById("overall");
+        const avEl = document.getElementById("average");
+        if (ovEl) ovEl.innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
+        if (avEl) avEl.innerText = `AVERAGE: ${average.toFixed(2)}%`;
         updatePositions();
     }
 
@@ -224,9 +222,7 @@
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('photoPreview').src = e.target.result;
-            }
+            reader.onload = function(e) { document.getElementById('photoPreview').src = e.target.result; saveCurrent(); }
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -236,118 +232,115 @@
         const subjectsPart2 = SUBJECTS.slice(20).map((name, i) => row(name, i + 21)).join('');
 
         return `
-            <div class="passport-photo">
-                <img id="photoPreview" src="" alt="Photo">
-            </div>
+            <div class="passport-photo"><img id="photoPreview" src="" alt="Photo"></div>
             <input type="file" class="photo-input" id="photoInput" accept="image/*" onchange="handlePhoto(this)">
 
             <h1>ERIS EDUCATIONAL CENTRE</h1>
             <h2>PRE-NURSERY, NURSERY, PRIMARY AND HIGH SCHOOL<br>2, ERIGHA DRIVE, OFF SAPELE-WARRI ROAD BEHIND GT BANK SAPELE, DELTA STATE</h2>
-            <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px;">REPORT SHEET</mark></div>
+            <div style="text-align:center; margin-bottom: 5px;"><mark style="background:var(--primary-color);color:var(--white);padding:2px 8px;border-radius:4px;font-weight:bold;">REPORT SHEET</mark></div>
 
             <div class="header-grid">
-                <div><label for="studentName" style="font-size:11px">STUDENT NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="studentClass"style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="session"style="font-size:11px">SESSION:</label><input id="session" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="position"style="font-size:11px">POSITION:</label><input id="position" type="text" style="font-size:11px;width:fit-content" readonly></div>
-                <div><label for="attendance"style="font-size:11px">NO OF ATTENDANCE:</label><input id="attendance" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label for="classSize"style="font-size:11px">NO IN CLASS:</label><input id="classSize" type="text" style="font-size:11px;width:fit-content" readonly></div>
+                <div><label>NAME:</label><input id="studentName" type="text"></div>
+                <div><label>CLASS:</label><input id="studentClass" type="text"></div>
+                <div><label>SESSION:</label><input id="session" type="text"></div>
+                <div><label>POSITION:</label><input id="position" type="text" readonly></div>
+                <div><label>ATTENDANCE:</label><input id="attendance" type="text"></div>
+                <div><label>NO IN CLASS:</label><input id="classSize" type="text" readonly></div>
             </div>
 
             <table>
-                <tr><th>SUBJECT</th><th>1st Test (20)</th><th>2nd Test (20)</th><th>Exam (60)</th><th>Total (100)</th><th>Remark</th></tr>
+                <tr><th style="width:30%">SUBJECT</th><th>1st Test (20)</th><th>2nd Test (20)</th><th>Exam (60)</th><th>Total (100)</th><th style="width:20%">Remark</th></tr>
                 ${subjectsPart1}
             </table>
             <table>
-                 <tr><th>SUBJECT</th><th>1st Test (10)</th><th>2nd Test (10)</th><th>Exam (30)</th><th>Total (50)</th><th>Remark</th></tr>
+                 <tr><th style="width:30%">SUBJECT</th><th>1st Test (10)</th><th>2nd Test (10)</th><th>Exam (30)</th><th>Total (50)</th><th style="width:20%">Remark</th></tr>
                 ${subjectsPart2}
             </table>
 
             <div class="totals-grid">
-                <div id="overall" style="font-size:10px";>MARKS OBTAINED: 0 / 2150</div>
-                <div id="average" style="font-size:10px";>AVERAGE: 0%</div>
+                <div id="overall">MARKS OBTAINED: 0 / 2150</div>
+                <div id="average">AVERAGE: 0%</div>
             </div>
-            <label>Class Teacher's Comment:</label> <input type="text" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
-            <label"> <br>
-            &emsp;&emsp;<label style="font-size:10px;">AFFECTIVE REPORT &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;PSYCHOMOTOR REPORT</label>
-            <table style="width:60%;">
-            <tr style="background:darkblue;color:white;font-weight:bold;font-size:11px; text-align:left;">
-            <td style="width:10%;">BEHAVIOUR AND ACTIVITIES</td> <td style="width:2%;">A</td><td style="width:2%;">B</td><td style="width:2%;">C</td><td style="width:2%;">D</td> <td style="width:7.5%;">SKILLS</td> <td style="width:2%;">A</td><td style="width:2%;">B</td><td style="width:2%;">C</td><td style="width:2%;">D</td>
-            </tr>
-            <tr>
-            <td style="width:10%; font-size:8px; text-align:left">PUNTUALITY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">CREATIVITY</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-              <tr>
-            <td style="width:10%; font-size:10px; text-align:left">NEATNESS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">GAMES</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-            <tr>
-            <td style="width:10%; font-size:8px; text-align:left">OBEDIENCE</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">SPORTS</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">ATTENTIVENESS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">MUSICAL SKILLS</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">PARTICIPATION IN CLASS ACTIVITIES</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">GRADES/REMARK 80-100-EXCELLENT</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">HONESTY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">70-79-VERY GOOD</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:10%; font-size:8px; text-align:left">RELATIONSHIP WITH OTHERS</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">60-69-GOOD</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">SELF CONTROL</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">50-59-AVERAGE</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">SENSE OF RESPONSIBILITY</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">41-49-FAIR</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
-             <tr>
-            <td style="width:8%; font-size:8px; text-align:left">RELATIONSHIP WITH STAFF</td> <td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td><td style="width:10%;"><input type="checkbox"></td> <td style="width:15%; font-size:8px; text-align:left">0-40-FAILED</td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td> <td style="width:10%;"><input type="checkbox"></td>
-            </tr>
+
+            <div style="margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
+                <label style="font-weight:bold; white-space:nowrap;">Class Teacher's Comment:</label>
+                <input id="teacherComment" type="text" style="border-bottom: 1px solid black; text-align: left;">
+            </div>
+
+            <table style="width:100%;">
+                <tr style="background:var(--primary-color); color:white; font-weight:bold; font-size:9px;">
+                    <td style="text-align:left; border: 1px solid #ccc;">BEHAVIOUR AND ACTIVITIES</td><td>A</td><td>B</td><td>C</td><td>D</td>
+                    <td style="text-align:left; border: 1px solid #ccc;">PSYCHOMOTOR SKILLS</td><td>A</td><td>B</td><td>C</td><td>D</td>
+                </tr>
+                ${behaviourPsychomotorRows()}
             </table>
 
-            <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top:20px;">
-                <u>
-                    <p>Head Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Next Term Fees: <input type="text" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Class Teacher's Remark/Signature: <input type="text" style="width:60%; border:none; border-bottom:1px solid #ccc;"></p>
-                    <p>Next Term Begins: 11th of January 2025 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" alt=""></p>
-                </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
+            <div style="border-top: 1px solid #ccc; padding-top: 5px; margin-top:5px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span style="flex:1;">Head Teacher's Comment: <input id="headComment" type="text" style="width:60%; border-bottom:1px solid #ccc; text-align:left;"></span>
+                    <span style="width:150px;">Next Term Fees: <input id="nextFees" type="text" style="width:50%; border-bottom:1px solid #ccc;"></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items: flex-end;">
+                    <span style="flex:1;">Class Teacher's Remark/Signature: <input id="remarkSig" type="text" style="width:50%; border-bottom:1px solid #ccc; text-align:left;"></span>
+                    <div style="text-align:center;">
+                        <div style="font-size:9px; margin-bottom: 2px;">Next Term Begins: 11th Jan 2025</div>
+                        <div style="font-weight:bold; border: 1px solid #ccc; padding: 2px; width: 60px; margin: 0 auto;">STAMP</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="nav" id="controls">
-                <button onclick="goBack()">⬅️ Prev</button>
-                <button onclick="goForward()">➡️ Next</button>
-                <button onclick="newPage()">➕ New</button>
-                <button class="btn" id="saveBtn" onclick="submitResult()" style="flex: 2; margin-bottom: 0;">SAVE AS PDF</button>
-            </div>
+            <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
+            <div class="nav" id="controls"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
         `;
     }
 
     function row(name, n) {
         return `<tr>
-            <td style="text-align:left;">${name}</td>
-            <td><input type="number" id="t1_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td><input type="number" id="t2_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td><input type="number" id="ex_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
-            <td id="total_${n}">0</td>
+            <td style="text-align:left; font-weight:bold;">${name}</td>
+            <td><input type="number" id="t1_${n}" oninput="calc()"></td>
+            <td><input type="number" id="t2_${n}" oninput="calc()"></td>
+            <td><input type="number" id="ex_${n}" oninput="calc()"></td>
+            <td id="total_${n}" style="font-weight:bold;">0</td>
             <td id="remark_${n}">-</td>
         </tr>`;
+    }
+
+    function behaviourPsychomotorRows() {
+        const beh = ["PUNCTUALITY", "NEATNESS", "OBEDIENCE", "ATTENTIVENESS", "PARTICIPATION", "HONESTY", "RELATIONSHIP", "SELF CONTROL", "RESPONSIBILITY", "STAFF REL."];
+        const psy = ["CREATIVITY", "GAMES", "SPORTS", "MUSICAL SKILLS", "80-100: EXC", "70-79: V.GOOD", "60-69: GOOD", "50-59: AVG", "41-49: FAIR", "0-40: FAIL"];
+        let html = "";
+        for(let i=0; i<10; i++) {
+            html += `<tr>
+                <td style="text-align:left; font-size:8px;">${beh[i]}</td>
+                <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+                <td style="text-align:left; font-size:8px;">${psy[i]}</td>
+                <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            </tr>`;
+        }
+        return html;
     }
 
     function restoreData() {
         if (currentIndex < 0) return;
         const data = pages[currentIndex];
-        document.getElementById("studentName").value = data.name || "";
-        document.getElementById("studentClass").value = data.class || "";
-        document.getElementById("photoPreview").src = data.photo || "";
+        if(document.getElementById("studentName")) document.getElementById("studentName").value = data.name || "";
+        if(document.getElementById("studentClass")) document.getElementById("studentClass").value = data.class || "";
+        if(document.getElementById("session")) document.getElementById("session").value = data.session || "";
+        if(document.getElementById("attendance")) document.getElementById("attendance").value = data.attendance || "";
+        if(document.getElementById("photoPreview")) document.getElementById("photoPreview").src = data.photo || "";
+        if(document.getElementById("teacherComment")) document.getElementById("teacherComment").value = data.teacherComment || "";
+        if(document.getElementById("headComment")) document.getElementById("headComment").value = data.headComment || "";
+        if(document.getElementById("nextFees")) document.getElementById("nextFees").value = data.nextFees || "";
+        if(document.getElementById("remarkSig")) document.getElementById("remarkSig").value = data.remarkSig || "";
+
         for (let i = 0; i < 23; i++) {
             const scores = data.scores[i];
-            if(document.getElementById(`t1_${i+1}`)){ 
-                document.getElementById(`t1_${i+1}`).value = scores[0];
-                document.getElementById(`t2_${i+1}`).value = scores[1];
-                document.getElementById(`ex_${i+1}`).value = scores[2];
-            }
+            const t1 = document.getElementById(`t1_${i+1}`);
+            const t2 = document.getElementById(`t2_${i+1}`);
+            const ex = document.getElementById(`ex_${i+1}`);
+            if(t1) t1.value = scores[0];
+            if(t2) t2.value = scores[1];
+            if(ex) ex.value = scores[2];
         }
         calc();
     }
@@ -380,6 +373,7 @@
         const photoInput = document.getElementById('photoInput');
 
         if(btn) { btn.innerText = "Processing High-Quality PDF..."; btn.disabled = true; }
+        if(btn) btn.style.display = 'none';
         if(controls) controls.style.display = 'none';
         if(photoInput) photoInput.style.display = 'none';
 
@@ -387,21 +381,21 @@
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
 
-            // High Quality Generation
+            // High Quality Generation (similar to index2.html)
             const canvas = await html2canvas(element, { scale: 4.0, useCORS: true });
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            
+
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: false 
+                compress: false
             });
-            
+
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            
+
             const pdfBlob = pdf.output('blob');
 
             // Cloudinary Upload
@@ -451,6 +445,7 @@
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
         } finally {
+            if(btn) btn.style.display = 'block';
             if(controls) controls.style.display = 'flex';
             if(photoInput) photoInput.style.display = 'block';
             if(btn) { btn.innerText = "SAVE AS PDF"; btn.disabled = false; }
@@ -458,6 +453,7 @@
     }
 
     function showButtons() {
+        if(document.getElementById('saveBtn')) document.getElementById('saveBtn').style.display = 'block';
         if(document.getElementById('controls')) document.getElementById('controls').style.display = 'flex';
         if(document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
     }
