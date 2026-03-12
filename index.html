@@ -211,12 +211,12 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             total = t1 + t2 + ex;
             overallTotal += total;
             maxOverallMark += maxMark;
-            if(document.getElementById(`total_${i}`)) document.getElementById(`total_${i}`).innerText = total;
-            if(document.getElementById(`remark_${i}`)) document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
+            document.getElementById(`total_${i}`).innerText = total;
+            document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
         }
         let average = maxOverallMark > 0 ? (overallTotal / maxOverallMark) * 100 : 0;
-        if(document.getElementById("overall")) document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
-        if(document.getElementById("average")) document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
+        document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
+        document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
 
         updatePositions();
     }
@@ -317,14 +317,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
             </div>
 
-            <div id="controls">
-                <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
-            </div>
-            <div id="navigation" class="nav">
-                <button onclick="goBack()">⬅️ Prev</button>
-                <button onclick="goForward()">➡️ Next</button>
-                <button onclick="newPage()">➕ New</button>
-            </div>
+            <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
+            <div class="nav"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
         `;
     }
 
@@ -356,49 +350,47 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         calc();
     }
 
-    function hideButtons() {
-        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'none';
-        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'none';
-        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'none';
-    }
-
-    function showButtons() {
-        if (document.getElementById('controls')) document.getElementById('controls').style.display = 'block';
-        if (document.getElementById('navigation')) document.getElementById('navigation').style.display = 'flex';
-        if (document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
-    }
-
     function submitResult() {
         calc();
         let studentName = document.getElementById("studentName").value.trim();
         if (studentName === "") { alert("Please enter student name!"); return; }
 
         if (typeof Android !== "undefined") {
-            hideButtons();
+            // APP VERSION
+            document.querySelector('.btn').style.display = 'none';
+            document.querySelector('.nav').style.display = 'none';
+            document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0, 0);
+
             setTimeout(() => {
                 Android.savePDF(studentName, document.documentElement.outerHTML);
-                showButtons();
+                setTimeout(showButtons, 1000);
             }, 500);
         } else {
+            // WEBSITE VERSION
             saveToWebDatabase(studentName);
         }
     }
 
     async function saveToWebDatabase(name) {
         const btn = document.getElementById('saveBtn');
-        btn.innerText = "Processing PDF...";
-        btn.disabled = true;
-        hideButtons();
+        const nav = document.querySelector('.nav');
+        const photoInput = document.getElementById('photoInput');
+
+        if(btn) btn.innerText = "Processing PDF...";
+        if(btn) btn.disabled = true;
+        if(btn) btn.style.display = 'none';
+        if(nav) nav.style.display = 'none';
+        if(photoInput) photoInput.style.display = 'none';
 
         try {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // Optimized capture: scale 1.0 instead of 2 to reduce file size
+            // Optimized capture
             const canvas = await html2canvas(element, { scale: 1.0, useCORS: true });
             
-            // Use JPEG with 0.5 quality instead of PNG to drastically reduce file size
+            // Use JPEG with 0.5 quality
             const imgData = canvas.toDataURL('image/jpeg', 0.5);
             
             const pdf = new jsPDF({
@@ -460,10 +452,21 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
         } finally {
-            showButtons();
-            btn.innerText = "SAVE AS PDF";
-            btn.disabled = false;
+            if(btn) btn.style.display = 'block';
+            if(nav) nav.style.display = 'flex';
+            if(photoInput) photoInput.style.display = 'block';
+            if(btn) btn.innerText = "SAVE AS PDF";
+            if(btn) btn.disabled = false;
         }
+    }
+
+    function showButtons() {
+        const btn = document.getElementById('saveBtn');
+        const nav = document.querySelector('.nav');
+        const photoInput = document.getElementById('photoInput');
+        if(btn) btn.style.display = 'block';
+        if(nav) nav.style.display = 'flex';
+        if(photoInput) photoInput.style.display = 'block';
     }
 </script>
 </body>
