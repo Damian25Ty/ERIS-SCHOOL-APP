@@ -107,6 +107,13 @@
         .nav { display: flex; justify-content: space-between; margin-top: 5px; gap: 5px; }
         .nav button { background-color: #007bff; color: var(--white); flex: 1; }
 
+      @media (max-width: 600px) {
+            body { padding: 10px; font-size: 11px; }
+            #page { padding: 10px; }
+            td, th { padding: 4px; }
+            .totals-grid { grid-template-columns: 1fr; }
+        }
+
         @media print {
             .btn, .nav, .photo-input, #Passcode { display: none !important; }
             body { background: white; padding: 0; }
