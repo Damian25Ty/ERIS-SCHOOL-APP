@@ -44,6 +44,23 @@
             color:white;
             border:none;
         }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        #statusText {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #countdownText {
+            color: #d32f2f;
+            display: none;
+        }
+        #loadingText {
+            color: #2e7d32;
+            display: none;
+        }
     </style>
 
 </head>
@@ -55,11 +72,18 @@
 <input type="text" id="name" placeholder="Enter Student Name">
 <input type="text" id="code" placeholder="Enter Passcode">
 
-<button onclick="checkResult()">CHECK RESULT</button>
+<button id="checkBtn" onclick="checkResult()">CHECK RESULT</button>
+
+<div id="statusText">
+    <p id="loadingText">Connecting to server... Please wait.</p>
+    <p id="countdownText">Please wait <span id="seconds">60</span> seconds before next try...</p>
+</div>
 
 <script>
+    let canClick = true;
 
     function checkResult(){
+        if (!canClick) return;
 
         let name = document.getElementById("name").value.trim();
         let code = document.getElementById("code").value.trim();
@@ -69,9 +93,47 @@
             return;
         }
 
-        Android.verifyStudent(name, code);
+        startCooldown(name, code);
     }
 
+    function startCooldown(name, code) {
+        canClick = false;
+        const btn = document.getElementById("checkBtn");
+        const cdText = document.getElementById("countdownText");
+        const ldText = document.getElementById("loadingText");
+        const secSpan = document.getElementById("seconds");
+        
+        btn.disabled = true;
+        btn.innerText = "PROCESSING...";
+        ldText.style.display = "block";
+        
+        // STAGGER LOGIC: Wait a random 1-5 seconds before calling Android
+        // This prevents "Traffic Jams" if 10+ people click at once.
+        let staggerTime = Math.floor(Math.random() * 4000) + 1000; 
+
+        setTimeout(() => {
+            Android.verifyStudent(name, code);
+            ldText.style.display = "none";
+            cdText.style.display = "block";
+            btn.innerText = "CHECK RESULT";
+        }, staggerTime);
+
+        // 60-second cooldown timer
+        let timeLeft = 60;
+        secSpan.innerText = timeLeft;
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            secSpan.innerText = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                canClick = true;
+                btn.disabled = false;
+                cdText.style.display = "none";
+            }
+        }, 1000);
+    }
 </script>
 
 </body>
