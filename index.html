@@ -480,7 +480,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
             if (!updateRes.ok) throw new Error("Database update failed");
 
-            alert(`${name} PDF created and saved Successfully! Passcode is: ${code}`);
+            alert(`${name} PDF created and saved Successfully!`);
         } catch (e) {
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
