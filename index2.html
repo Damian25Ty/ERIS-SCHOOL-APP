@@ -111,7 +111,7 @@
         input[type="number"], input[type="text"] {
             width: 100%;
             border: none;
-            text-align: left;
+            text-align: center;
             font-size: 13px;
             padding: 0;
             background: transparent;
@@ -119,8 +119,25 @@
         input:focus { outline: none; background: #fff9c4; }
 
         .footer-section { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .comment-box { margin-bottom: 10px; border-bottom: none ; display: flex; gap: 5px; }
-        .comment-box input { flex: 1; border: none; text-align: left; }
+        
+        /* Updated Comment Box Styles for wrapping */
+        .comment-box { margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .comment-row { display: flex; align-items: baseline; gap: 5px; }
+        .comment-row label { font-weight: bold; white-space: nowrap; }
+        .comment-row textarea { 
+            flex: 1; 
+            border: none; 
+            border-bottom: 1px solid #000; 
+            font-family: Arial, sans-serif; 
+            font-size: 13px; 
+            background: transparent; 
+            resize: none; 
+            overflow: hidden; 
+            min-height: 18px;
+            padding: 0;
+            line-height: 1.4;
+        }
+        .comment-row textarea:focus { outline: none; background: #fff9c4; }
 
         .red-text { color: red; font-weight: bold; }
 
@@ -175,16 +192,16 @@
 
     <div class="student-info">
         <div>
-            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;">
-                <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;">
-                <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;">
+            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;">
+                <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;text-align:left;">
+                <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;text-align:left;">
             </div>
             <br>
-            <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;">
-                <label>POSITION:</label><input type="text" id="position" style="width:50px; font-size:15px; flex:none;">
-                <label>MARKS OBTAINED:</label><input type="text" style="width:50px; font-size:15px; flex:none;" id="marksObtained" readonly>
-                <label>AVERAGE:</label> <span id="averageSpan" style="; font-size:15px">0.00</span> &emsp14;
-                <label>REMARK:</label> <input type="text" id="generalRemark" style="width:80px; font-size:15px; border-bottom:1px solid #000;">
+            <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;text-align:left;">
+                <label>POSITION:</label><input type="text" id="position" style="width:50px; font-size:15px; flex:none;text-align:left;">
+                <label>MARKS OBTAINED:</label><input type="text" style="width:50px; font-size:15px; flex:none;text-align:left;" id="marksObtained" readonly>
+                <label>AVERAGE:</label> <span id="averageSpan" style="text-align:left; font-size:15px">0.00</span> &emsp14;
+                <label>REMARK:</label> <input type="text" id="generalRemark" style="width:80px; font-size:15px; border-bottom:1px solid #000;text-align:left;">
             </div>
         </div>
     </div>
@@ -233,7 +250,16 @@
     </div>
 
     <div class="footer"><br>
-        <div class="comment-box"><label>Principal's Comment:</label><input type="text" id="principalComment" style="width:300px; border-bottom:none"> <label>Class Teacher's Comment:</label><input type="text" id="teacherComment" style="width:300px"></div>
+        <div class="comment-box">
+            <div class="comment-row">
+                <label>Principal's Comment:</label>
+                <textarea id="principalComment" oninput="autoGrow(this)"></textarea>
+            </div>
+            <div class="comment-row">
+                <label>Class Teacher's Comment:</label>
+                <textarea id="teacherComment" oninput="autoGrow(this)"></textarea>
+            </div>
+        </div>
         <div class="footer-section">
             <div>
                 <p class="red-text">Next Term Fee: ₦<input type="text" id="nextTermFee" style="width:40px; font-weight:bold; border-bottom:none;"> Outstanding Bills: <input type="text" id="outstandingBills" style="width:40px; border-bottom:none;font-weight:bold">Total Dues: <input type="text" id="totalDues" style="width:40px; border-bottom:none;font-weight:bold"></p>
@@ -252,6 +278,11 @@
 </div>
 
 <script>
+    function autoGrow(element) {
+        element.style.height = "5px";
+        element.style.height = (element.scrollHeight) + "px";
+    }
+
     document.getElementById("btn").onclick = function() {
         let code = document.getElementById("code").value;
         if (code === "9131") {
@@ -309,10 +340,11 @@
     function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; restoreData(); } }
 
     function resetFields() {
-        document.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => el.value = "");
+        document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = "");
         document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
         document.getElementById("photoPreview").src = "";
         document.getElementById("termYear").value = "1ST TERM 2025/2026";
+        document.querySelectorAll('textarea').forEach(el => el.style.height = "18px");
         calc();
     }
 
@@ -363,6 +395,9 @@
         }
         for (let i = 0; i < 12; i++) { const b = data.behaviours[i]; document.getElementById(`beh_a_${i}`).checked = b[0]; document.getElementById(`beh_b_${i}`).checked = b[1]; document.getElementById(`beh_c_${i}`).checked = b[2]; document.getElementById(`beh_d_${i}`).checked = b[3]; }
         for (let i = 0; i < 6; i++) { const p = data.psychomotors[i]; document.getElementById(`psy_a_${i}`).checked = p[0]; document.getElementById(`psy_b_${i}`).checked = p[1]; document.getElementById(`psy_c_${i}`).checked = p[2]; document.getElementById(`psy_d_${i}`).checked = p[3]; }
+        
+        // Auto-adjust textareas on restore
+        document.querySelectorAll('textarea').forEach(el => autoGrow(el));
         calc();
     }
 
