@@ -77,14 +77,8 @@
             const data = await res.json();
             const record = data.record;
             
-            // First, let's categorize and group students by class
             let groups = {};
             for (const name in record) {
-                // Since your record value is "code|pdfUrl", we don't have the class stored in the Bin value.
-                // However, you want the list to show the class. I'll add logic to detect the class from the name if possible, 
-                // but since the class isn't in the database record, I'll provide a placeholder or try to infer it.
-                // NOTE: If you haven't saved the class to the database, we can't sort by it.
-                // Assuming you've updated your saving logic to include class: "code|pdfUrl|className"
                 const parts = record[name].split("|");
                 const className = (parts[2] || "UNKNOWN").toUpperCase();
                 if(!groups[className]) groups[className] = [];
@@ -92,7 +86,6 @@
             }
 
             list.innerHTML = "";
-            // Sort classes by specified order
             const sortedClasses = Object.keys(groups).sort((a, b) => {
                 let idxA = PRIMARY_ORDER.indexOf(a);
                 let idxB = PRIMARY_ORDER.indexOf(b);
@@ -102,7 +95,6 @@
             });
 
             sortedClasses.forEach(cls => {
-                // Add header for the class
                 const headerRow = list.insertRow();
                 headerRow.className = "class-group";
                 const cell = headerRow.insertCell(0);
@@ -118,8 +110,18 @@
                     const pBtn = document.createElement("button");
                     pBtn.className = "show-btn";
                     pBtn.innerText = "Pass";
-                    pBtn.onclick = () => alert("Passcode: " + student.code);
+                    
+                    const codeSpan = document.createElement("span");
+                    codeSpan.innerText = " " + student.code;
+                    codeSpan.style.display = "none";
+                    codeSpan.style.fontWeight = "bold";
+                    
+                    pBtn.onclick = () => {
+                        codeSpan.style.display = "inline";
+                    };
+                    
                     actionCell.appendChild(pBtn);
+                    actionCell.appendChild(codeSpan);
 
                     if(student.url) {
                         const vBtn = document.createElement("button");
