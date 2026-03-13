@@ -5,62 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Student Result System</title>
 
-    <!-- Essential Libraries for Web-side PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
     <style>
         :root {
-           --primary-color: #000080; /* Dark Blue */
-           --secondary-color: #D32F2F; /* Red */
-           --text-color: #333;
-           --bg-color: #f4f7fc;
-           --white: #fff;
-       }
+            --primary-color: #000080; /* Dark Blue */
+            --secondary-color: #D32F2F; /* Red */
+            --text-color: #333;
+            --bg-color: #f4f7fc;
+            --white: #fff;
+        }
 
-       body {
-           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-           margin: 0;
-           padding: 15px;
-           background-color: var(--bg-color);
-           color: var(--text-color);
-           font-size: 12px;
-       }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 12px;
+        }
 
-       #page { width: 200%; max-width: 800px; margin: 0 auto; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
+        #page { width: 200%; max-width: 800px; margin: 0 auto; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
 
-       .passport-photo {
-           position: absolute;
-           top: 20px;
-           left: 20px;
-           width: 100px;
-           height: 100px;
-           border: 1px solid #ccc;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           overflow: hidden;
-           background: #f0f0f0;
-       }
-       .passport-photo img {
-           max-width: 100%;
-           max-height: 100%;
-           object-fit: cover;
-       }
-       .photo-input {
-           position: absolute;
-           top: 100px;
-           left: 20px;
-           font-size: 10px;
-           width: 150px;
-       }
+        .passport-photo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        .passport-photo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        .photo-input {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            font-size: 10px;
+            width: 150px;
+        }
 
-       h1 { font-size: 1.3em; color: var(--primary-color); text-align: center; margin-bottom: 5px; }
-       h2 { font-size: 1em; color: var(--secondary-color); text-align: center; margin-top: 0; margin-bottom: 20px; }
+        h1 { font-size: 1.3em; color: var(--primary-color); text-align: center; margin-bottom: 5px; }
+        h2 { font-size: 1em; color: var(--secondary-color); text-align: center; margin-top: 0; margin-bottom: 20px; }
 
-      table {
-   table-layout: autofit-content;
-   width: 100%;
+       table {
+    table-layout: autofit-content;
+    width: 100%;
 }
 
 th:nth-child(1), td:nth-child(1) { width: 30%; }  /* SUBJECT */
@@ -71,61 +67,62 @@ th:nth-child(5), td:nth-child(5) { width: 12%; }  /* Total */
 th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
 
-       th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
-       th { background-color: var(--primary-color); color: var(--white); font-size: 0.8em; }
-       td { font-size: 0.8em; }
+        th, td { border: 1px solid #ccc; padding: 3px; text-align: center; vertical-align: middle; }
+        th { background-color: var(--primary-color); color: var(--white); font-size: 0.8em; }
+        td { font-size: 0.8em; }
 
-       input[type="text"], input[type="number"] { width: 100%; padding: 6px; text-align: center; border: 0px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 6px; text-align: center; border: 0px solid #ddd; border-radius: 4px; box-sizing: border-box; }
 
-       .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
-       .header-grid div {
-   display: flex;
-   align-items: center;
-   gap: 4px;
+        .header-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .header-grid div {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .header-grid label {
-   white-space: nowrap;
-   font-size: 10px;
+    white-space: nowrap;
+    font-size: 10px;
 }
 
 .header-grid input {
-   flex: 1;
-   font-size: 10px;
+    flex: 1;
+    font-size: 10px;
 }
 
-       .header-grid label { font-weight: bold; margin-bottom: 2px; color: var(--primary-color); }
-       .header-grid input { background-color: #f9f9f9; }
+        .header-grid label { font-weight: bold; margin-bottom: 2px; color: var(--primary-color); }
+        .header-grid input { background-color: #f9f9f9; }
 
-       .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-weight: bold; margin: 20px 0; }
+        .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-weight: bold; margin: 20px 0; }
 
-       .affective-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-       .affective-grid h3 { text-align: center; color: var(--primary-color); }
+        .affective-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .affective-grid h3 { text-align: center; color: var(--primary-color); }
 
-       .btn, .nav button { border: none; padding: 12px 20px; font-size: 1em; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
-       .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-bottom: 10px; }
-       .btn:hover { background: #218838; }
-       .nav { display: flex; justify-content: space-between; margin-top: 20px; }
-       .nav button { background-color: #007bff; color: var(--white); }
+        .btn, .nav button { border: none; padding: 12px 20px; font-size: 1em; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
+        .btn { width: 100%; background: #28a745; color: var(--white); font-weight: bold; margin-bottom: 10px; }
+        .btn:hover { background: #218838; }
+        .nav { display: flex; justify-content: space-between; margin-top: 20px; }
+        .nav button { background-color: #007bff; color: var(--white); }
 
-       @media (max-width: 600px) {
-           body { padding: 10px; font-size: 11px; }
-           #page { padding: 10px; }
-           td, th { padding: 4px; }
-           .totals-grid { grid-template-columns: 1fr; }
-       }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 11px; }
+            #page { padding: 10px; }
+            td, th { padding: 4px; }
+            .totals-grid { grid-template-columns: 1fr; }
+        }
 
-       @media print {
-           .btn, .nav, .photo-input, #Passcode { display: none !important; }
-           body { background: white; padding: 0; }
-           #page { box-shadow: none; width: 100%; margin: 0; }
-       }
+        @media print {
+            .btn, .nav, .photo-input, #Passcode { display: none !important; }
+            body { background: white; padding: 0; }
+            #page { box-shadow: none; width: 100%; margin: 0; }
+        }
     </style>
+
 </head>
 <body>
 <div id="Passcode"><br>
-    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px; border: 1px solid #ccc;"><br>
-    <button id="btn" style="margin-top: 10px; padding: 5px 20px; cursor: pointer;">Open</button>
+    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
+    <button id="btn">Open</button>
 </div>
 <div id="page" style="display:none"></div>
 
@@ -133,11 +130,12 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     document.getElementById("btn").onclick = function() {
         let code = document.getElementById("code").value;
         if (code === "08008") {
-            document.getElementById("Passcode").style.display = "none";
-            document.getElementById("page").style.display = "block";
-        } else {
-            window.alert("Invalid Passcode");
-        }
+    document.getElementById("Passcode").style.display = "none";
+    document.getElementById("page").style.display = "block";
+    }
+    else{
+    window.alert("Invalid Passcode");
+    }
     };
 </script>
 
@@ -145,8 +143,6 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     // Database Config
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69a08ed7d0ea881f40dc82ff";
-    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
-    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     let pages = [];
     let currentIndex = -1;
@@ -160,7 +156,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; render(); } }
 
     function createEmptyData() {
-        return { name: "", class: "", session: "", position: "", attendance: "", classSize: "", scores: Array.from({length: 23}, () => [0, 0, 0]), photo: "", teacherComment: "", headComment: "", nextFees: "", remarkSig: "" };
+        return { name: "", class: "", session: "", position: "", attendance: "", classSize: "", scores: Array(23).fill([0, 0, 0]), photo: "" };
     }
 
     function saveCurrent() {
@@ -168,13 +164,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         let data = pages[currentIndex];
         data.name = document.getElementById("studentName") ? document.getElementById("studentName").value : "";
         data.class = document.getElementById("studentClass") ? document.getElementById("studentClass").value : "";
-        data.session = document.getElementById("session") ? document.getElementById("session").value : "";
-        data.attendance = document.getElementById("attendance") ? document.getElementById("attendance").value : "";
         data.photo = document.getElementById("photoPreview") ? document.getElementById("photoPreview").src : "";
-        data.teacherComment = document.getElementById("teacherComment") ? document.getElementById("teacherComment").value : "";
-        data.headComment = document.getElementById("headComment") ? document.getElementById("headComment").value : "";
-        data.nextFees = document.getElementById("nextFees") ? document.getElementById("nextFees").value : "";
-        data.remarkSig = document.getElementById("remarkSig") ? document.getElementById("remarkSig").value : "";
         for (let i = 0; i < 23; i++) {
             data.scores[i] = [getVal(`t1_${i+1}`), getVal(`t2_${i+1}`), getVal(`ex_${i+1}`)];
         }
@@ -192,11 +182,14 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function updatePositions() {
         if (currentIndex < 0) return;
         saveCurrent();
+
         let grandTotals = pages.map(p => p.scores.reduce((sum, s) => sum + s[0] + s[1] + s[2], 0));
         let currentGrandTotal = grandTotals[currentIndex];
+
         if (currentGrandTotal > 0) {
             let overallRank = 1;
             grandTotals.forEach(gt => { if (gt > currentGrandTotal) overallRank++; });
+
             const posEl = document.getElementById("position");
             const sizeEl = document.getElementById("classSize");
             if (posEl) posEl.value = getOrdinal(overallRank);
@@ -208,20 +201,17 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         let overallTotal = 0, maxOverallMark = 0;
         for (let i = 1; i <= 23; i++) {
             let t1 = getVal(`t1_${i}`), t2 = getVal(`t2_${i}`), ex = getVal(`ex_${i}`), total, maxMark;
-            maxMark = (i >= 21) ? 50 : 100;
+            if (i >= 21) { maxMark = 50; } else { maxMark = 100; }
             total = t1 + t2 + ex;
             overallTotal += total;
             maxOverallMark += maxMark;
-            const tEl = document.getElementById(`total_${i}`);
-            const rEl = document.getElementById(`remark_${i}`);
-            if (tEl) tEl.innerText = total;
-            if (rEl) rEl.innerText = getRemark(total, maxMark);
+            document.getElementById(`total_${i}`).innerText = total;
+            document.getElementById(`remark_${i}`).innerText = getRemark(total, maxMark);
         }
         let average = maxOverallMark > 0 ? (overallTotal / maxOverallMark) * 100 : 0;
-        const ovEl = document.getElementById("overall");
-        const avEl = document.getElementById("average");
-        if (ovEl) ovEl.innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
-        if (avEl) avEl.innerText = `AVERAGE: ${average.toFixed(2)}%`;
+        document.getElementById("overall").innerText = `MARKS OBTAINED: ${overallTotal} / ${maxOverallMark}`;
+        document.getElementById("average").innerText = `AVERAGE: ${average.toFixed(2)}%`;
+
         updatePositions();
     }
 
@@ -230,7 +220,9 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = function(e) { document.getElementById('photoPreview').src = e.target.result; saveCurrent(); }
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            }
             reader.readAsDataURL(input.files[0]);
         }
     }
@@ -240,20 +232,22 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         const subjectsPart2 = SUBJECTS.slice(20).map((name, i) => row(name, i + 21)).join('');
 
         return `
-            <div class="passport-photo"><img id="photoPreview" src="" alt="Photo"></div>
+            <div class="passport-photo">
+                <img id="photoPreview" src="" alt="Photo">
+            </div>
             <input type="file" class="photo-input" id="photoInput" accept="image/*" onchange="handlePhoto(this)">
 
             <h1>ERIS EDUCATIONAL CENTRE</h1>
             <h2>PRE-NURSERY, NURSERY, PRIMARY AND HIGH SCHOOL<br>2, ERIGHA DRIVE, OFF SAPELE-WARRI ROAD BEHIND GT BANK SAPELE, DELTA STATE</h2>
-            <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px;font-weight:bold;">REPORT SHEET</mark></div>
+            <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px;">REPORT SHEET</mark></div>
 
             <div class="header-grid">
-                <div><label style="font-size:11px">NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">SESSION:</label><input id="session" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">POSITION:</label><input id="position" type="text" style="font-size:11px;width:fit-content" readonly></div>
-                <div><label style="font-size:11px">ATTENDANCE:</label><input id="attendance" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">NO IN CLASS:</label><input id="classSize" type="text" style="font-size:11px;width:fit-content" readonly></div>
+                <div><label for="studentName" style="font-size:11px">STUDENT NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"></div>
+                <div><label for="studentClass"style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"></div>
+                <div><label for="session"style="font-size:11px">SESSION:</label><input id="session" type="text" style="font-size:11px;width:fit-content"></div>
+                <div><label for="position"style="font-size:11px">POSITION:</label><input id="position" type="text" style="font-size:11px;width:fit-content" readonly></div>
+                <div><label for="attendance"style="font-size:11px">NO OF ATTENDANCE:</label><input id="attendance" type="text" style="font-size:11px;width:fit-content"></div>
+                <div><label for="classSize"style="font-size:11px">NO IN CLASS:</label><input id="classSize" type="text" style="font-size:11px;width:fit-content" readonly></div>
             </div>
 
             <table>
@@ -269,10 +263,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 <div id="overall" style="font-size:10px";>MARKS OBTAINED: 0 / 2150</div>
                 <div id="average" style="font-size:10px";>AVERAGE: 0%</div>
             </div>
-
-                <label>Class Teacher's Comment:</label>
-                <input id="teacherComment" type="text" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
-           <br>
+            <label>Class Teacher's Comment:</label> <input type="text" style="width:600px; height:5px;font-size:11px;text-align:left; border:none; border-bottom:1px solid black;">
+            <label"> <br>
 
             &emsp;&emsp;<label style="font-size:10px;">AFFECTIVE REPORT &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;PSYCHOMOTOR REPORT</label>
             <table style="width:60%;">
@@ -312,72 +304,43 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             </table>
 
             <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top:20px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-                    <span style="flex:1;">Head Teacher's Comment: <input id="headComment" type="text" style="width:70%; border-bottom:1px solid #ccc; font-size:10px; text-align:left;"></span>
-                    <span style="width:150px;">Next Term Fees: <input id="nextFees" type="text" style="width:50%; border-bottom:1px solid #ccc;"></span>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items: flex-end;">
-                    <span style="flex:1;">Class Teacher's Remark/Signature: <input id="remarkSig" type="text" style="width:50%; border-bottom:1px solid #ccc; text-align:left;"></span>
-                    <div style="text-align:center;">
-                        <div style="font-size:9px; margin-bottom: 2px;">Next Term Begins: <input type="text" style="width:40%; font-size:10px; text"></div>
-                        <div style="font-weight:bold; border: 1px solid #ccc; padding: 2px; width: 60px; margin: 0 auto;">STAMP</div>
-                    </div>
-                </div>
+                <u>
+                    <p>Head Teacher's Comment: <input type="text" style="width:70%; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Next Term Fees: <input type="text" style="width:150px; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Class Teacher's Remark/Signature: <input type="text" style="width:60%; border:none; border-bottom:1px solid #ccc;"></p>
+                    <p>Next Term Begins: 11th of January 2025 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="" alt=""></p>
+                </u>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; <label>STAMP</label>
             </div>
 
-            <div class="nav" id="controls"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
-            <br> <br>
-            <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
+            <button class="btn" onclick="submitResult()">SAVE AS PDF</button>
+            <div class="nav"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
         `;
     }
 
     function row(name, n) {
         return `<tr>
-            <td style="text-align:left; font-weight:bold;">${name}</td>
-            <td><input type="number" id="t1_${n}" oninput="calc()"></td>
-            <td><input type="number" id="t2_${n}" oninput="calc()"></td>
-            <td><input type="number" id="ex_${n}" oninput="calc()"></td>
-            <td id="total_${n}" style="font-weight:bold;">0</td>
+            <td style="text-align:left;">${name}</td>
+            <td><input type="number" id="t1_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
+            <td><input type="number" id="t2_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
+            <td><input type="number" id="ex_${n}" oninput="calc()" style="font-size:11px; height:10px;width:50px;"></td>
+            <td id="total_${n}">0</td>
             <td id="remark_${n}">-</td>
         </tr>`;
-    }
-
-    function behaviourPsychomotorRows() {
-        const beh = ["PUNCTUALITY", "NEATNESS", "OBEDIENCE", "ATTENTIVENESS", "PARTICIPATION", "HONESTY", "RELATIONSHIP", "SELF CONTROL", "RESPONSIBILITY", "STAFF REL."];
-        const psy = ["CREATIVITY", "GAMES", "SPORTS", "MUSICAL SKILLS", "80-100: EXC", "70-79: V.GOOD", "60-69: GOOD", "50-59: AVG", "41-49: FAIR", "0-40: FAIL"];
-        let html = "";
-        for(let i=0; i<10; i++) {
-            html += `<tr>
-                <td style="text-align:left; font-size:8px;">${beh[i]}</td>
-                <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-                <td style="text-align:left; font-size:8px;">${psy[i]}</td>
-                <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-            </tr>`;
-        }
-        return html;
     }
 
     function restoreData() {
         if (currentIndex < 0) return;
         const data = pages[currentIndex];
-        if(document.getElementById("studentName")) document.getElementById("studentName").value = data.name || "";
-        if(document.getElementById("studentClass")) document.getElementById("studentClass").value = data.class || "";
-        if(document.getElementById("session")) document.getElementById("session").value = data.session || "";
-        if(document.getElementById("attendance")) document.getElementById("attendance").value = data.attendance || "";
-        if(document.getElementById("photoPreview")) document.getElementById("photoPreview").src = data.photo || "";
-        if(document.getElementById("teacherComment")) document.getElementById("teacherComment").value = data.teacherComment || "";
-        if(document.getElementById("headComment")) document.getElementById("headComment").value = data.headComment || "";
-        if(document.getElementById("nextFees")) document.getElementById("nextFees").value = data.nextFees || "";
-        if(document.getElementById("remarkSig")) document.getElementById("remarkSig").value = data.remarkSig || "";
-
+        document.getElementById("studentName").value = data.name || "";
+        document.getElementById("studentClass").value = data.class || "";
+        document.getElementById("photoPreview").src = data.photo || "";
         for (let i = 0; i < 23; i++) {
             const scores = data.scores[i];
-            const t1 = document.getElementById(`t1_${i+1}`);
-            const t2 = document.getElementById(`t2_${i+1}`);
-            const ex = document.getElementById(`ex_${i+1}`);
-            if(t1) t1.value = scores[0];
-            if(t2) t2.value = scores[1];
-            if(ex) ex.value = scores[2];
+            if(document.getElementById(`t1_${i+1}`)){ // check if element exists
+                document.getElementById(`t1_${i+1}`).value = scores[0];
+                document.getElementById(`t2_${i+1}`).value = scores[1];
+                document.getElementById(`ex_${i+1}`).value = scores[2];
+            }
         }
         calc();
     }
@@ -389,8 +352,8 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
         if (typeof Android !== "undefined") {
             // APP VERSION
-            document.getElementById('saveBtn').style.display = 'none';
-            document.getElementById('controls').style.display = 'none';
+            document.querySelector('.btn').style.display = 'none';
+            document.querySelector('.nav').style.display = 'none';
             document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0, 0);
 
@@ -405,68 +368,27 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     }
 
     async function saveToWebDatabase(name) {
-        const btn = document.getElementById('saveBtn');
-        const controls = document.getElementById('controls');
-        const photoInput = document.getElementById('photoInput');
-
-        if(btn) { btn.innerText = "Processing High-Quality PDF..."; btn.disabled = true; }
-        if(btn) btn.style.display = 'none';
-        if(controls) controls.style.display = 'none';
-        if(photoInput) photoInput.style.display = 'none';
-
         try {
-            const { jsPDF } = window.jspdf;
-            const element = document.getElementById('page');
-
-            // High Quality Generation (similar to index2.html)
-            const canvas = await html2canvas(element, { scale: 4.0, useCORS: true });
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-            const pdf = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: 'a2',
-                compress: false
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-            const pdfBlob = pdf.output('blob');
-
-            // Cloudinary Upload
-            const formData = new FormData();
-            formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
-            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            formData.append('resource_type', 'auto');
-            formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
-
-            const cloudRes = await fetch(CLOUDINARY_URL, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!cloudRes.ok) {
-                const errorData = await cloudRes.json();
-                throw new Error(errorData.error.message || "Cloudinary Upload Failed");
-            }
-
-            const cloudData = await cloudRes.json();
-            const pdfUrl = cloudData.secure_url;
-
-            // Database logic
+            // 1. Get latest record
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
-            const dbData = await res.json();
-            const record = dbData.record;
+            const data = await res.json();
+            const record = data.record;
 
-            let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}`;
+            // 2. Generate passcode if new
+            let code = "1000";
+            if (record[name]) {
+                code = record[name].split("|")[0];
+            } else {
+                code = Math.floor(1000 + Math.random() * 9000).toString();
+            }
 
-            // Save back to JsonBin
-            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            // 3. Update record (URL is empty because website can't auto-upload to Cloudinary yet)
+            record[name] = `${code}|Website-Save`;
+
+            // 4. Save back to JsonBin
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: {
                     'X-Master-Key': API_KEY,
@@ -475,24 +397,17 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 body: JSON.stringify(record)
             });
 
-            if (!updateRes.ok) throw new Error("Database update failed");
-
-            alert(`${name} High-quality PDF created and saved Successfully! Passcode is: ${code}`);
+            alert(`Result saved to database! Passcode for ${name} is: ${code}. You can now save the PDF manually.`);
+            window.print(); // Let user save the PDF file locally
         } catch (e) {
-            console.error("WEB_SAVE_ERROR:", e);
-            alert("Error: " + e.message);
-        } finally {
-            if(btn) btn.style.display = 'block';
-            if(controls) controls.style.display = 'flex';
-            if(photoInput) photoInput.style.display = 'block';
-            if(btn) { btn.innerText = "SAVE AS PDF"; btn.disabled = false; }
+            alert("Database save failed. Check your internet.");
         }
     }
 
     function showButtons() {
-        if(document.getElementById('saveBtn')) document.getElementById('saveBtn').style.display = 'block';
-        if(document.getElementById('controls')) document.getElementById('controls').style.display = 'flex';
-        if(document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
+        document.querySelector('.btn').style.display = 'block';
+        document.querySelector('.nav').style.display = 'flex';
+        document.getElementById('photoInput').style.display = 'block';
     }
 </script>
 </body>
