@@ -325,8 +325,9 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 </div>
             </div>
 
-            <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
             <div class="nav" id="controls"><button onclick="goBack()">⬅️ Prev</button><button onclick="goForward()">➡️ Next</button><button onclick="newPage()">➕ New</button></div>
+            <br> <br>
+            <button class="btn" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
         `;
     }
 
@@ -408,7 +409,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         const controls = document.getElementById('controls');
         const photoInput = document.getElementById('photoInput');
 
-        if(btn) { btn.innerText = "Processing High-Quality PDF..."; btn.disabled = true; }
+        if(btn) { btn.innerText = "Processing Optimized PDF..."; btn.disabled = true; }
         if(btn) btn.style.display = 'none';
         if(controls) controls.style.display = 'none';
         if(photoInput) photoInput.style.display = 'none';
@@ -417,15 +418,18 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
 
-            // High Quality Generation (similar to index2.html)
-            const canvas = await html2canvas(element, { scale: 4.0, useCORS: true });
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            // Optimized PDF Generation
+            // Scale reduced from 4.0 to 2.0 for 75% reduction in pixel count
+            const canvas = await html2canvas(element, { scale: 2.0, useCORS: true });
+            
+            // Image quality reduced from 1.0 to 0.7 for significant compression
+            const imgData = canvas.toDataURL('image/jpeg', 0.7);
 
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: false
+                compress: true // Enabled PDF internal compression
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -476,7 +480,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
 
             if (!updateRes.ok) throw new Error("Database update failed");
 
-            alert(`${name} High-quality PDF created and saved Successfully! Passcode is: ${code}`);
+            alert(`${name} PDF created and saved Successfully! Passcode is: ${code}`);
         } catch (e) {
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
@@ -493,6 +497,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         if(document.getElementById('controls')) document.getElementById('controls').style.display = 'flex';
         if(document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'block';
     }
+
 </script>
 </body>
 </html>
