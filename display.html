@@ -1,87 +1,204 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Saved Results</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Results Manager</title>
     <style>
-        body{font-family:Arial;padding:15px}
-        h2{text-align:center}
-        .pdf-container {
+        :root {
+            --primary-color: #2e7d32;
+            --danger-color: #d32f2f;
+            --bg-color: #f4f7fc;
+            --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: var(--bg-color); }
+        h2 { text-align: center; color: #333; margin-bottom: 25px; }
+        
+        .result-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 10px 0;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+            background: var(--white);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
-        .pdf-name {
+        .result-item:hover { transform: translateY(-2px); }
+        
+        .student-name {
             flex: 1;
             cursor: pointer;
-            font-weight: bold;
-            color: #2e7d32;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 16px;
         }
-        .delete-btn {
-            background: #d32f2f;
-            color: white;
+        
+        .actions { display: flex; gap: 10px; }
+        
+        button {
             border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            transition: opacity 0.2s;
         }
-        .delete-btn:hover {
-            background: #b71c1c;
+        
+        .view-btn { background: #e8f5e9; color: var(--primary-color); }
+        .delete-btn { background: #ffebee; color: var(--danger-color); }
+        .clear-btn { 
+            background: var(--danger-color); 
+            color: white; 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px;
+            display: none; /* Hidden until results load */
         }
+        
+        button:hover { opacity: 0.8; }
+        
+        #status { text-align: center; color: #666; margin-top: 20px; font-style: italic; }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<h2>Saved Student Results</h2>
+<h2><span id="loadIcon"></span>Student Results Management</h2>
 
-<div id="pdfList"></div>
+<button id="clearAllBtn" class="clear-btn" onclick="clearHistory()">DELETE ALL HISTORY</button>
+
+<div id="pdfList">
+    <!-- List items will be injected here -->
+</div>
+
+<div id="status">Loading results...</div>
 
 <script>
-    function loadPDFs(){
-        if(typeof Android !== "undefined"){
+    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
+    const BIN_PRIMARY = "69a08ed7d0ea881f40dc82ff";
+    const BIN_HIGH = "69af0b88ae596e708f71b09c";
+
+    async function loadResults() {
+        const listDiv = document.getElementById("pdfList");
+        const statusDiv = document.getElementById("status");
+        
+        if (typeof Android !== "undefined" && Android.getPDFList) {
             Android.getPDFList();
+            return;
+        }
+
+        try {
+            statusDiv.innerHTML = '<div class="loader"></div>Fetching from database...';
+            const primaryData = await fetchBin(BIN_PRIMARY);
+            const highData = await fetchBin(BIN_HIGH);
+            
+            const combined = {...primaryData, ...highData};
+            renderList(Object.keys(combined));
+        } catch (e) {
+            statusDiv.innerText = "Failed to load list. Please check your connection.";
         }
     }
 
-    function showPDFList(data){
-        let list = document.getElementById("pdfList");
-        list.innerHTML = "";
-
-        let names = data.split("|");
-
-        names.forEach(name=>{
-            if(name.trim() !== ""){
-                let container = document.createElement("div");
-                container.className = "pdf-container";
-
-                let nameDiv = document.createElement("div");
-                nameDiv.className = "pdf-name";
-                nameDiv.innerText = name;
-                nameDiv.onclick = () => Android.openPDF(name);
-
-                let deleteBtn = document.createElement("button");
-                deleteBtn.className = "delete-btn";
-                deleteBtn.innerText = "DELETE";
-                deleteBtn.onclick = () => {
-                    if(confirm("Are you sure you want to delete " + name + "?")) {
-                        Android.deleteStudent(name);
-                    }
-                };
-
-                container.appendChild(nameDiv);
-                container.appendChild(deleteBtn);
-                list.appendChild(container);
-            }
+    async function fetchBin(binId) {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+            headers: { 'X-Master-Key': API_KEY }
         });
+        const data = await res.json();
+        return data.record || {};
     }
 
-    loadPDFs();
+    function showPDFList(data) {
+        let names = [];
+        if (Array.isArray(data)) {
+            names = data;
+        } else if (typeof data === "string") {
+            names = data.split("|").filter(n => n.trim() !== "");
+        }
+        renderList(names);
+    }
+
+    function renderList(names) {
+        const listDiv = document.getElementById("pdfList");
+        const statusDiv = document.getElementById("status");
+        const clearBtn = document.getElementById("clearAllBtn");
+        listDiv.innerHTML = "";
+
+        if (!names || names.length === 0) {
+            statusDiv.innerText = "No saved results found.";
+            clearBtn.style.display = "none";
+            return;
+        }
+
+        clearBtn.style.display = "block";
+        const uniqueNames = [...new Set(names)].filter(n => n && n.trim() !== "");
+        
+        uniqueNames.sort().forEach(name => {
+            const item = document.createElement("div");
+            item.className = "result-item";
+            
+            item.innerHTML = `
+                <div class="student-name" onclick="openResult('${name}')">${name}</div>
+                <div class="actions">
+                    <button class="view-btn" onclick="openResult('${name}')">VIEW</button>
+                    <button class="delete-btn" onclick="deleteResult('${name}')">DELETE</button>
+                </div>
+            `;
+            listDiv.appendChild(item);
+        });
+        
+        statusDiv.innerText = `Total Results: ${uniqueNames.length}`;
+    }
+
+    function openResult(name) {
+        if (typeof Android !== "undefined" && Android.openPDF) {
+            Android.openPDF(name);
+        } else {
+            alert("Please use the ERIS App to view result PDFs.");
+        }
+    }
+
+    async function deleteResult(name) {
+        if (!confirm(`Are you sure you want to delete the result for ${name}?`)) return;
+
+        if (typeof Android !== "undefined" && Android.deleteStudent) {
+            Android.deleteStudent(name);
+            setTimeout(loadResults, 1000);
+        } else {
+            alert("Delete is only available within the ERIS App.");
+        }
+    }
+
+    async function clearHistory() {
+        if (!confirm("DANGER: Are you sure you want to PERMANENTLY DELETE ALL student results? This will clear the database and Cloudinary storage.")) return;
+        if (!confirm("This action cannot be undone. Are you absolutely sure?")) return;
+
+        if (typeof Android !== "undefined" && Android.deleteAllHistory) {
+            Android.deleteAllHistory();
+            document.getElementById("status").innerText = "Clearing all data... Please wait.";
+            document.getElementById("pdfList").innerHTML = "";
+            document.getElementById("clearAllBtn").style.display = "none";
+            setTimeout(loadResults, 3000);
+        } else {
+            alert("Delete History is only available within the ERIS App.");
+        }
+    }
+
+    window.onload = loadResults;
 </script>
 
 </body>
