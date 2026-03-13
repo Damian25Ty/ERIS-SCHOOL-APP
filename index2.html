@@ -432,7 +432,7 @@
 
     async function saveToWebDatabase(name) {
         const btn = document.getElementById('saveBtn');
-        btn.innerText = "Processing High-Quality PDF...";
+        btn.innerText = "Processing Optimized PDF...";
         btn.disabled = true;
         document.getElementById('controls').style.display = 'none';
         document.getElementById('photoInput').style.display = 'none';
@@ -441,17 +441,17 @@
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // INCREASED QUALITY: scale 4.0 for high resolution (aiming for ~4MB file size)
-            const canvas = await html2canvas(element, { scale: 4.0, useCORS: true });
+            // OPTIMIZED QUALITY: Reduced from 4.0 to 2.0
+            const canvas = await html2canvas(element, { scale: 2.0, useCORS: true });
             
-            // INCREASED QUALITY: Use JPEG with 1.0 (maximum) quality
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            // OPTIMIZED QUALITY: Reduced from 1.0 to 0.7 for better compression
+            const imgData = canvas.toDataURL('image/jpeg', 0.7);
             
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: false // Disable compression to maintain quality
+                compress: true // Internal compression enabled
             });
             
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -501,7 +501,7 @@
 
             if (!updateRes.ok) throw new Error("Database update failed");
 
-            alert(`${name} High-quality PDF created and saved Successfully! );
+            alert(`${name} PDF created and saved Successfully! Passcode is: ${code}`);
         } catch (e) {
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
