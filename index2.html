@@ -450,24 +450,26 @@
         saveCurrent();
         let name = document.getElementById("studentName").value.trim();
         let studentClass = document.getElementById("studentClass").value.trim();
+        let session = document.getElementById("termYear").value.trim();
         if (!name) { alert("Enter Student Name"); return; }
         if (!studentClass) { alert("Enter Student Class"); return; }
+        if (!session) { alert("Enter Session"); return; }
 
         if (typeof Android !== "undefined") {
             document.getElementById('controls').style.display = 'none';
             document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0,0);
             setTimeout(() => {
-                Android.savePDF(name, studentClass, document.documentElement.outerHTML);
+                Android.savePDF(name, studentClass, session, document.documentElement.outerHTML);
                 document.getElementById('controls').style.display = 'block';
                 document.getElementById('photoInput').style.display = 'block';
             }, 500);
         } else {
-            saveToWebDatabase(name, studentClass);
+            saveToWebDatabase(name, studentClass, session);
         }
     }
 
-    async function saveToWebDatabase(name, studentClass) {
+    async function saveToWebDatabase(name, studentClass, session) {
         const btn = document.getElementById('saveBtn');
         btn.innerText = "Processing Optimized PDF...";
         btn.disabled = true;
@@ -525,7 +527,7 @@
             const record = data.record;
 
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}|${studentClass}`;
+            record[name] = `${code}|${pdfUrl}|${studentClass}|${session}`;
 
             const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
