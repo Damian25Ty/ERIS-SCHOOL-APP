@@ -385,7 +385,9 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
     function submitResult() {
         calc();
         let studentName = document.getElementById("studentName").value.trim();
+        let studentClass = document.getElementById("studentClass").value.trim();
         if (studentName === "") { alert("Please enter student name!"); return; }
+        if (studentClass === "") { alert("Please enter student class!"); return; }
 
         if (typeof Android !== "undefined") {
             // APP VERSION
@@ -395,16 +397,16 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                Android.savePDF(studentName, document.documentElement.outerHTML);
+                Android.savePDF(studentName, studentClass, document.documentElement.outerHTML);
                 setTimeout(showButtons, 1000);
             }, 500);
         } else {
             // WEBSITE VERSION
-            saveToWebDatabase(studentName);
+            saveToWebDatabase(studentName, studentClass);
         }
     }
 
-    async function saveToWebDatabase(name) {
+    async function saveToWebDatabase(name, studentClass) {
         const btn = document.getElementById('saveBtn');
         const controls = document.getElementById('controls');
         const photoInput = document.getElementById('photoInput');
@@ -419,17 +421,14 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const element = document.getElementById('page');
 
             // Optimized PDF Generation
-            // Scale reduced from 4.0 to 2.0 for 75% reduction in pixel count
             const canvas = await html2canvas(element, { scale: 2.0, useCORS: true });
-            
-            // Image quality reduced from 1.0 to 0.7 for significant compression
             const imgData = canvas.toDataURL('image/jpeg', 0.7);
 
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: true // Enabled PDF internal compression
+                compress: true 
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -466,7 +465,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const record = dbData.record;
 
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}`;
+            record[name] = `${code}|${pdfUrl}|${studentClass}`;
 
             // Save back to JsonBin
             const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
