@@ -386,8 +386,10 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         calc();
         let studentName = document.getElementById("studentName").value.trim();
         let studentClass = document.getElementById("studentClass").value.trim();
+        let session = document.getElementById("session").value.trim();
         if (studentName === "") { alert("Please enter student name!"); return; }
         if (studentClass === "") { alert("Please enter student class!"); return; }
+        if (session === "") { alert("Please enter session!"); return; }
 
         if (typeof Android !== "undefined") {
             // APP VERSION
@@ -397,16 +399,16 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                Android.savePDF(studentName, studentClass, document.documentElement.outerHTML);
+                Android.savePDF(studentName, studentClass, session, document.documentElement.outerHTML);
                 setTimeout(showButtons, 1000);
             }, 500);
         } else {
             // WEBSITE VERSION
-            saveToWebDatabase(studentName, studentClass);
+            saveToWebDatabase(studentName, studentClass, session);
         }
     }
 
-    async function saveToWebDatabase(name, studentClass) {
+    async function saveToWebDatabase(name, studentClass, session) {
         const btn = document.getElementById('saveBtn');
         const controls = document.getElementById('controls');
         const photoInput = document.getElementById('photoInput');
@@ -465,7 +467,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             const record = dbData.record;
 
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}|${studentClass}`;
+            record[name] = `${code}|${pdfUrl}|${studentClass}|${session}`;
 
             // Save back to JsonBin
             const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
