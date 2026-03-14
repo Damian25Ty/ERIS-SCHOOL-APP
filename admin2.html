@@ -28,11 +28,11 @@
         button:hover { background: #0056b3; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: white; table-layout: fixed; }
         td, th { border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis; }
-        th { background-color: #f2f2f2; }
-        .show-btn { background: #28a745; color: white; padding: 5px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 2px; }
-        .show-btn:hover { background: #218838; }
+        th { background-color: #f2f2f2; position: relative; }
         #loginDiv, #panelDiv { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .class-group { background-color: #e9ecef; font-weight: bold; }
+        .pass-text { font-family: monospace; font-weight: bold; font-size: 16px; }
+        .toggle-eye { cursor: pointer; float: right; font-size: 18px; user-select: none; }
     </style>
 </head>
 <body>
@@ -49,24 +49,43 @@
     <button onclick="fetchCredentials()">Refresh List</button>
     <table>
         <thead>
-        <tr><th style="width: 40%;">Name</th><th style="width: 30%;">Class</th><th style="width: 30%;">Actions</th></tr>
+        <tr>
+            <th style="width: 40%;">Name</th>
+            <th style="width: 30%;">Class</th>
+            <th style="width: 30%;">Passcode <span id="eyeIcon" class="toggle-eye" onclick="togglePasscodes()">👁️</span></th>
+        </tr>
         </thead>
         <tbody id="list"></tbody>
     </table>
 </div>
 
+[
 <script>
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69af0b88ae596e708f71b09c";
 
-    const HIGH_ORDER = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"];
+    const HIGH_ORDER = ["JSS1", "JSS2", "JSS3", "JSS 1", "JSS 2", "JSS 3", "SS1", "SS2", "SS3", "SS 1", "SS 2", "SS 3"];
+
+    let passcodesVisible = false;
 
     function login(){
-        if(document.getElementById("user").value === "admin" && document.getElementById("pass").value === "7777"){
+        if(document.getElementById("user").value === "admin" && document.getElementById("pass").value === "5839"){
             document.getElementById("loginDiv").style.display = "none";
             document.getElementById("panelDiv").style.display = "block";
             fetchCredentials();
         } else { alert("Invalid login"); }
+    }
+
+    function togglePasscodes() {
+        passcodesVisible = !passcodesVisible;
+        const eye = document.getElementById("eyeIcon");
+        eye.innerText = passcodesVisible ? "🕶️" : "👁️";
+        
+        const passElements = document.getElementsByClassName("pass-text");
+        for (let el of passElements) {
+            const realCode = el.getAttribute("data-code");
+            el.innerText = passcodesVisible ? realCode : "****";
+        }
     }
 
     async function fetchCredentials(){
@@ -79,18 +98,21 @@
             
             let groups = {};
             for (const name in record) {
-                const parts = record[name].split("|");
-                const className = (parts[2] || "UNKNOWN").toUpperCase();
+                const val = record[name];
+                if (typeof val !== 'string') continue;
+                
+                const parts = val.split("|");
+                const className = (parts[2] || "UNKNOWN").toUpperCase().trim();
                 if(!groups[className]) groups[className] = [];
-                groups[className].push({name, code: parts[0], url: parts[1]});
+                groups[className].push({name, code: parts[0]});
             }
 
             list.innerHTML = "";
             const sortedClasses = Object.keys(groups).sort((a, b) => {
-                let idxA = HIGH_ORDER.indexOf(a);
-                let idxB = HIGH_ORDER.indexOf(b);
-                if (idxA === -1) idxA = 99;
-                if (idxB === -1) idxB = 99;
+                let idxA = HIGH_ORDER.findIndex(o => a.includes(o));
+                let idxB = HIGH_ORDER.findIndex(o => b.includes(o));
+                if (idxA === -1) idxA = 999;
+                if (idxB === -1) idxB = 999;
                 return idxA - idxB;
             });
 
@@ -105,26 +127,16 @@
                     const row = list.insertRow();
                     row.insertCell(0).innerText = student.name;
                     row.insertCell(1).innerText = cls;
-                    const actionCell = row.insertCell(2);
                     
-                    const pBtn = document.createElement("button");
-                    pBtn.className = "show-btn";
-                    pBtn.innerText = "Pass";
-                    
+                    const passCell = row.insertCell(2);
                     const codeSpan = document.createElement("span");
-                    codeSpan.innerText = " " + student.code;
-                    codeSpan.style.display = "none";
-                    codeSpan.style.fontWeight = "bold";
-                    
-                    pBtn.onclick = () => {
-                        codeSpan.style.display = "inline";
-                    };
-                    
-                    actionCell.appendChild(pBtn);
-                    actionCell.appendChild(codeSpan);
+                    codeSpan.className = "pass-text";
+                    codeSpan.setAttribute("data-code", student.code);
+                    codeSpan.innerText = passcodesVisible ? student.code : "****";
+                    passCell.appendChild(codeSpan);
                 });
             });
-        } catch(e) { list.innerHTML = "<tr><td colspan='3'>Error loading.</td></tr>"; }
+        } catch(e) { list.innerHTML = "<tr><td colspan='3'>Error loading data.</td></tr>"; }
     }
 </script>
 </body>
