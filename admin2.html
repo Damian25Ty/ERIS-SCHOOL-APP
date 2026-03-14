@@ -33,6 +33,7 @@
         .class-group { background-color: #e9ecef; font-weight: bold; }
         .pass-text { font-family: monospace; font-weight: bold; font-size: 16px; }
         .toggle-eye { cursor: pointer; float: right; font-size: 18px; user-select: none; }
+        .session-info { color: #555; font-size: 14px; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
@@ -41,11 +42,13 @@
     <h2>High School Admin Login</h2>
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
+    <input id="sessionInput" placeholder="Enter Session (e.g. 1ST TERM 2025/2026)">
     <button onclick="login()">LOGIN</button>
 </div>
 
 <div id="panelDiv" style="display:none;">
     <h2>High School Student Credentials</h2>
+    <span class="session-info">Viewing Session: <b id="currentSessionDisplay"></b></span>
     <button onclick="fetchCredentials()">Refresh List</button>
     <table>
         <thead>
@@ -59,7 +62,6 @@
     </table>
 </div>
 
-[
 <script>
     const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
     const BIN_ID = "69af0b88ae596e708f71b09c";
@@ -67,11 +69,18 @@
     const HIGH_ORDER = ["JSS1", "JSS2", "JSS3", "JSS 1", "JSS 2", "JSS 3", "SS1", "SS2", "SS3", "SS 1", "SS 2", "SS 3"];
 
     let passcodesVisible = false;
+    let targetSession = "";
 
     function login(){
-        if(document.getElementById("user").value === "admin" && document.getElementById("pass").value === "5839"){
+        targetSession = document.getElementById("sessionInput").value.trim().toUpperCase();
+        if(document.getElementById("user").value === "admin" && document.getElementById("pass").value === "7777"){
+            if(targetSession === "") {
+                alert("Please enter a session to continue.");
+                return;
+            }
             document.getElementById("loginDiv").style.display = "none";
             document.getElementById("panelDiv").style.display = "block";
+            document.getElementById("currentSessionDisplay").innerText = targetSession;
             fetchCredentials();
         } else { alert("Invalid login"); }
     }
@@ -90,21 +99,34 @@
 
     async function fetchCredentials(){
         const list = document.getElementById("list");
-        list.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
+        list.innerHTML = "<tr><td colspan='3'>Loading results...</td></tr>";
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY }});
             const data = await res.json();
             const record = data.record;
             
             let groups = {};
-            for (const name in record) {
-                const val = record[name];
+            let matchFound = false;
+
+            for (const key in record) {
+                const val = record[key];
                 if (typeof val !== 'string') continue;
                 
                 const parts = val.split("|");
+                const studentSession = (parts[3] || "UNKNOWN").toUpperCase().trim();
+                
+                if(studentSession !== targetSession) continue;
+                
+                matchFound = true;
+                const studentName = key.split(" | ")[0]; // Get name only
                 const className = (parts[2] || "UNKNOWN").toUpperCase().trim();
                 if(!groups[className]) groups[className] = [];
-                groups[className].push({name, code: parts[0]});
+                groups[className].push({name: studentName, code: parts[0]});
+            }
+
+            if (!matchFound) {
+                list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 20px; color: #888;'>No students found for this session.</td></tr>";
+                return;
             }
 
             list.innerHTML = "";
