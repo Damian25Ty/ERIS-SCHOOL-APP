@@ -194,7 +194,7 @@
         <div>
             <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;">
                 <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;text-align:left;">
-                <label>CLASS:</label><input type="text" id="studentClass" style="width:100px; font-size:15px; flex:none;text-align:left;">
+                <label>CLASS:</label><input type="text" id="studentClass" style="width:190px; font-size:15px; flex:none;text-align:left;">
             </div>
             <br>
             <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;text-align:left;">
@@ -270,11 +270,11 @@
 </div>
 
 <div class="controls" id="controls" style="text-align:center; display:none">
-    <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button> &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
-    <button class="btn btn-nav" onclick="goForward()">NEXT</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+    <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+    <button class="btn btn-nav" onclick="goForward()">NEXT</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
     <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
     <br><br>
-    <button class="btn btn-save" id="saveBtn" onclick="submitResult()">SAVE AS PDF</button>
+    <button class="btn btn-save" id="saveBtn" style="flex:1" onclick="submitResult()">SAVE AS PDF</button>
 </div>
 
 <script>
@@ -449,23 +449,25 @@
     function submitResult() {
         saveCurrent();
         let name = document.getElementById("studentName").value.trim();
+        let studentClass = document.getElementById("studentClass").value.trim();
         if (!name) { alert("Enter Student Name"); return; }
+        if (!studentClass) { alert("Enter Student Class"); return; }
 
         if (typeof Android !== "undefined") {
             document.getElementById('controls').style.display = 'none';
             document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0,0);
             setTimeout(() => {
-                Android.savePDF(name, document.documentElement.outerHTML);
+                Android.savePDF(name, studentClass, document.documentElement.outerHTML);
                 document.getElementById('controls').style.display = 'block';
                 document.getElementById('photoInput').style.display = 'block';
             }, 500);
         } else {
-            saveToWebDatabase(name);
+            saveToWebDatabase(name, studentClass);
         }
     }
 
-    async function saveToWebDatabase(name) {
+    async function saveToWebDatabase(name, studentClass) {
         const btn = document.getElementById('saveBtn');
         btn.innerText = "Processing Optimized PDF...";
         btn.disabled = true;
@@ -523,7 +525,7 @@
             const record = data.record;
 
             let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}`;
+            record[name] = `${code}|${pdfUrl}|${studentClass}`;
 
             const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
