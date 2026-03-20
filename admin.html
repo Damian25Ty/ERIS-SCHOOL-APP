@@ -42,7 +42,7 @@
     <h2>Primary Admin Login</h2>
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
-    <input id="sessionInput" placeholder="Enter Session (e.g. 1ST TERM 2025/2026)">
+    <input id="sessionInput" placeholder="ENTER SESSION (E.G. 1ST TERM 2025/2026)" oninput="this.value = this.value.toUpperCase()">
     <button onclick="login()">LOGIN</button>
 </div>
 
@@ -127,7 +127,7 @@
                 if(studentSession !== targetSession) continue;
                 
                 matchFound = true;
-                const studentName = key.split(" | ")[0]; // Get only name, remove Session ID
+                const studentName = key.split(" | ")[0]; 
                 const className = (parts[2] || "UNKNOWN").toUpperCase().trim();
                 if(!groups[className]) groups[className] = [];
                 groups[className].push({name: studentName, code: parts[0]});
