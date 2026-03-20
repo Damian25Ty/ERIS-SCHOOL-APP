@@ -29,6 +29,7 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             position: relative;
+            box-sizing: border-box;
         }
         .header { text-align: center; color: var(--primary-blue); position: relative; padding-top: 10px; }
         .logo { position: absolute; left: 0; top: 0; width: 80px; }
@@ -95,19 +96,27 @@
             background: transparent;
         }
 
-        .main-container { display: flex; gap: 20px; align-items: stretch; }
-        .scores-table { flex: 2.5; }
-        .side-tables { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+        /* TABLE ADJUSTMENT FIX */
+        .main-container { display: flex; gap: 10px; align-items: flex-start; width: 100%; }
+        .scores-table { flex: 0 0 600px; } 
+        .side-tables { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
 
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #000; padding: 1px; text-align: center; }
-        th { background-color: var(--header-blue); color: #fff; font-size: 15px; }
+        th { background-color: var(--header-blue); color: #fff; font-size: 12px; }
 
         .scores-table td { height: 20.8px; }
         .side-tables table { margin-bottom: 0; }
         .side-tables td { height: 20.8px; }
 
-        .scores-table td:nth-child(2) { text-align: left; padding-left: 5px; }
+        /* SUBJECT COLUMN: WIDTH 1% FORCES IT TO BE AS NARROW AS POSSIBLE FOR TEXT */
+        .scores-table td:nth-child(2) { 
+            text-align: left; 
+            padding-left: 2px; 
+            white-space: nowrap; 
+            width: 1%; 
+        }
+        
         input[type="number"], input[type="text"] {
             width: 100%;
             border: none;
@@ -120,7 +129,6 @@
 
         .footer-section { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
         
-        /* Updated Comment Box Styles for wrapping */
         .comment-box { margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
         .comment-row { display: flex; align-items: baseline; gap: 5px; }
         .comment-row label { font-weight: bold; white-space: nowrap; }
@@ -156,14 +164,14 @@
 <body>
 
 <div id="Passcode"><br>
-    <label for="Passcode">Enter Passcode:</label><input type="text" id="code" style="width:100px"><br>
+    <label for="Passcode">Enter Passcode:</label><br>
+    <input type="text" id="code" style="width:100px; border: 1px solid #000;"><br>
     <button id="btn">Open</button>
 </div>
 <div id="page" style="display:none">
     <div class="header">
         <img src="ERIS LOGO.jpg.jpeg" class="logo" alt="Logo">
 
-        <!-- Right Column with Photo and Photo Input -->
         <div class="header-right-column">
             <div class="passport-photo">
                 <img id="photoPreview" src="" alt="Passport">
@@ -187,14 +195,14 @@
             1/2 ERHIGA DRIVE BEHIND GT BANK, SAPELE/WARRI ROAD, SAPELE, DELTA STATE, NIGERIA.<br>
             TEL: +2348037552638, +2348037552639 &nbsp; EMAIL: eriscomputers2001@yahoo.com
         </div>
-        <div class="term-box"><input type="text" id="termYear" value="1ST TERM 2025/2026" style="width:150px; font-weight:bold;"></div>
+        <div class="term-box"><input type="text" id="termYear" value="2ND TERM 2025/2026" style="width:150px; font-weight:bold;" oninput="this.value = this.value.toUpperCase()"></div>
     </div>
 
     <div class="student-info">
         <div>
-            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;">
+            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;" oninput="this.value = this.value.toUpperCase()">
                 <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;text-align:left;">
-                <label>CLASS:</label><input type="text" id="studentClass" style="width:190px; font-size:15px; flex:none;text-align:left;">
+                <label>CLASS:</label><input type="text" id="studentClass" style="width:190px; font-size:15px; flex:none;text-align:left;" oninput="this.value = this.value.toUpperCase()">
             </div>
             <br>
             <div class="info-row"><label>NO. IN CLASS:</label><input type="text" id="noInClass" style="width:50px; font-size:15px; flex:none;text-align:left;">
@@ -231,7 +239,7 @@
                 <thead>
                 <tr style="background:#004085;color:white; font-size:10px">
                     <th style="text-align:left; border: 1px solid #000;">Behaviour and activities</th>
-                    <th style="border: 1px solid #000;">A</th><th style="border: 1px solid #000;">B</th><th style="border: 1px solid #000;">C</th><th style="border: 1px solid #000;">D</th>
+                    <th style="border: 1px solid #000; width: 20px;">A</th><th style="border: 1px solid #000; width: 20px;">B</th><th style="border: 1px solid #000; width: 20px;">C</th><th style="border: 1px solid #000; width: 20px;">D</th>
                 </tr>
                 </thead>
                 <tbody id="behaviourRows" style="font-size:10px"></tbody>
@@ -241,7 +249,7 @@
                 <thead>
                 <tr style="background:#004085;color:white; font-size:10px">
                     <th style="text-align:left; border: 1px solid #000;">Psychomotor Skill</th>
-                    <th style="border: 1px solid #000;">A</th><th style="border: 1px solid #000;">B</th><th style="border: 1px solid #000;">C</th><th style="border: 1px solid #000;">D</th>
+                    <th style="border: 1px solid #000; width: 20px;">A</th><th style="border: 1px solid #000; width: 20px;">B</th><th style="border: 1px solid #000; width: 20px;">C</th><th style="border: 1px solid #000; width: 20px;">D</th>
                 </tr>
                 </thead>
                 <tbody id="psychomotorRows" style="font-size:10px"></tbody>
@@ -269,15 +277,25 @@
     </div>
 </div>
 
-<div class="controls" id="controls" style="text-align:center; display:none">
-    <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
-    <button class="btn btn-nav" onclick="goForward()">NEXT</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+ <div class="controls" id="controls" style="text-align:center; display:none">
+    <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;;&emsp;&emsp;&emsp;&emsp;
+    <button class="btn btn-nav" onclick="goForward()">NEXT</button>&emsp;&emsp;&emsp;&emsp;
     <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
     <br><br>
     <button class="btn btn-save" id="saveBtn" style="flex:1" onclick="submitResult()">SAVE AS PDF</button>
-</div>
+ </div>
 
 <script>
+    function hideButtons() {
+        document.getElementById('controls').style.display = 'none';
+        document.getElementById('photoInput').style.display = 'none';
+    }
+
+    function showButtons() {
+        document.getElementById('controls').style.display = 'block';
+        document.getElementById('photoInput').style.display = 'block';
+    }
+
     function autoGrow(element) {
         element.style.height = "5px";
         element.style.height = (element.scrollHeight) + "px";
@@ -313,7 +331,7 @@
         const subTbody = document.getElementById("subjectRows");
         subTbody.innerHTML = "";
         SUBJECTS.forEach((sub, i) => {
-            subTbody.innerHTML += `<tr><td>${i+1}</td><td style="text-align:left; padding-left: 5px;">${sub}</td><td><input type="number" id="t1_${i}" oninput="calc()"></td><td><input type="number" id="t2_${i}" oninput="calc()"></td><td><input type="number" id="ca_${i}" oninput="calc()"></td><td><input type="number" id="ex_${i}" oninput="calc()"></td><td id="total_${i}">0</td><td><input type="text" id="pos_${i}" readonly></td><td id="grade_${i}">-</td></tr>`;
+            subTbody.innerHTML += `<tr><td>${i+1}</td><td style="text-align:left; padding-left: 2px; white-space: nowrap;">${sub}</td><td><input type="number" id="t1_${i}" oninput="calc()"></td><td><input type="number" id="t2_${i}" oninput="calc()"></td><td><input type="number" id="ca_${i}" oninput="calc()"></td><td><input type="number" id="ex_${i}" oninput="calc()"></td><td id="total_${i}">0</td><td><input type="text" id="pos_${i}" readonly></td><td id="grade_${i}">-</td></tr>`;
         });
 
         const behTbody = document.getElementById("behaviourRows");
@@ -332,7 +350,7 @@
     }
 
     function createEmptyData() {
-        return { name: "", class: "", session: "1ST TERM 2025/2026", position: "", attendance: "", noInClass: "", scores: Array.from({length: 20}, () => [0, 0, 0, 0]), photo: "", generalRemark: "", principalComment: "", teacherComment: "", nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "", behaviours: Array.from({length: 12}, () => [false, false, false, false]), psychomotors: Array.from({length: 6}, () => [false, false, false, false]) };
+        return { name: "", class: "", session: "2ND TERM 2025/2026", position: "", attendance: "", noInClass: "", scores: Array.from({length: 20}, () => [0, 0, 0, 0]), photo: "", generalRemark: "", principalComment: "", teacherComment: "", nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "", behaviours: Array.from({length: 12}, () => [false, false, false, false]), psychomotors: Array.from({length: 6}, () => [false, false, false, false]) };
     }
 
     function newPage() { saveCurrent(); pages.push(createEmptyData()); currentIndex++; resetFields(); }
@@ -343,7 +361,7 @@
         document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = "");
         document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
         document.getElementById("photoPreview").src = "";
-        document.getElementById("termYear").value = "1ST TERM 2025/2026";
+        document.getElementById("termYear").value = "2ND TERM 2025/2026";
         document.querySelectorAll('textarea').forEach(el => el.style.height = "18px");
         calc();
     }
@@ -377,7 +395,7 @@
         const data = pages[currentIndex];
         document.getElementById("studentName").value = data.name || "";
         document.getElementById("studentClass").value = data.class || "";
-        document.getElementById("termYear").value = data.session || "1ST TERM 2025/2026";
+        document.getElementById("termYear").value = data.session || "2ND TERM 2025/2026";
         document.getElementById("attendance").value = data.attendance || "";
         document.getElementById("noInClass").value = data.noInClass || "";
         document.getElementById("position").value = data.position || "";
@@ -456,14 +474,8 @@
         if (!session) { alert("Enter Session"); return; }
 
         if (typeof Android !== "undefined") {
-            document.getElementById('controls').style.display = 'none';
-            document.getElementById('photoInput').style.display = 'none';
             window.scrollTo(0,0);
-            setTimeout(() => {
-                Android.savePDF(name, studentClass, session, document.documentElement.outerHTML);
-                document.getElementById('controls').style.display = 'block';
-                document.getElementById('photoInput').style.display = 'block';
-            }, 500);
+            Android.savePDF(name, studentClass, session, document.documentElement.outerHTML);
         } else {
             saveToWebDatabase(name, studentClass, session);
         }
@@ -473,24 +485,20 @@
         const btn = document.getElementById('saveBtn');
         btn.innerText = "Processing Optimized PDF...";
         btn.disabled = true;
-        document.getElementById('controls').style.display = 'none';
-        document.getElementById('photoInput').style.display = 'none';
+        hideButtons();
 
         try {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
             
-            // OPTIMIZED QUALITY: Reduced from 4.0 to 2.0
             const canvas = await html2canvas(element, { scale: 2.0, useCORS: true });
-            
-            // OPTIMIZED QUALITY: Reduced from 1.0 to 0.7 for better compression
             const imgData = canvas.toDataURL('image/jpeg', 0.7);
             
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: true // Internal compression enabled
+                compress: true 
             });
             
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -499,7 +507,6 @@
             
             const pdfBlob = pdf.output('blob');
 
-            // Robust Cloudinary Upload
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -519,7 +526,6 @@
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            // Database logic
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
             });
@@ -545,8 +551,7 @@
             console.error("WEB_SAVE_ERROR:", e);
             alert("Error: " + e.message);
         } finally {
-            document.getElementById('controls').style.display = 'block';
-            document.getElementById('photoInput').style.display = 'block';
+            showButtons();
             btn.innerText = "SAVE AS PDF";
             btn.disabled = false;
         }
