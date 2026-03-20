@@ -2,7 +2,6 @@
 <html>
 <head>
     <script>
-        // The same Gist URL you used in Android Studio
         const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
 
         async function checkKillSwitch() {
@@ -11,7 +10,7 @@
                 const status = await response.text();
                 if (status.trim().toUpperCase() === "TERMINATE") {
                     document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
-                    window.location.href = "about:blank"; // Or redirect them away
+                    window.location.href = "about:blank";
                 }
             } catch (e) {
                 console.error("Kill switch check failed", e);
@@ -23,63 +22,40 @@
     <title>Student Result Portal</title>
 
     <style>
-        body{
-            font-family: Arial;
-            padding: 20px;
-        }
-        h2{
-            text-align:center;
-        }
-        input{
-            width:100%;
-            padding:12px;
-            font-size:16px;
-            margin-bottom:12px;
-        }
-        button{
-            width:100%;
-            padding:12px;
-            font-size:18px;
-            background:green;
-            color:white;
-            border:none;
-        }
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-        #statusText {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        #countdownText {
-            color: #d32f2f;
-            display: none;
-        }
-        #loadingText {
-            color: #2e7d32;
-            display: none;
-        }
+        body{ font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2{ text-align:center; color: #333; }
+        input{ width:100%; padding:12px; font-size:16px; margin-bottom:12px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+        button{ width:100%; padding:12px; font-size:18px; background: #28a745; color:white; border:none; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #218838; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
+        #statusText { text-align: center; font-weight: bold; margin-top: 15px; min-height: 20px; }
+        #countdownText { color: #d32f2f; display: none; }
+        #loadingText { color: #2e7d32; display: none; }
     </style>
-
 </head>
-
 <body>
 
-<h2>Student Result Portal</h2>
+<div class="container">
+    <h2>Student Result Portal</h2>
 
-<input type="text" id="name" placeholder="Enter Student Name">
-<input type="text" id="code" placeholder="Enter Passcode">
+    <input type="text" id="name" placeholder="ENTER STUDENT NAME" oninput="this.value = this.value.toUpperCase()">
+    <input type="text" id="code" placeholder="ENTER PASSCODE">
 
-<button id="checkBtn" onclick="checkResult()">CHECK RESULT</button>
+    <button id="checkBtn" onclick="checkResult()">CHECK RESULT</button>
 
-<div id="statusText">
-    <p id="loadingText">Connecting to server... Please wait.</p>
-    <p id="countdownText">Please wait <span id="seconds">60</span> seconds before next try...</p>
+    <div id="statusText">
+        <p id="loadingText">Connecting to server... Please wait.</p>
+        <p id="countdownText">Please wait <span id="seconds">60</span> seconds before next try...</p>
+    </div>
 </div>
 
 <script>
+    // Database Configuration (Synced with your Android App)
+    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
+    const BIN_PRIMARY = "69a08ed7d0ea881f40dc82ff";
+    const BIN_HIGH = "69af0b88ae596e708f71b09c";
+
     let canClick = true;
 
     function checkResult(){
@@ -93,39 +69,84 @@
             return;
         }
 
-        startCooldown(name, code);
+        startProcess(name, code);
     }
 
-    function startCooldown(name, code) {
+    async function startProcess(name, code) {
         canClick = false;
         const btn = document.getElementById("checkBtn");
-        const cdText = document.getElementById("countdownText");
         const ldText = document.getElementById("loadingText");
-        const secSpan = document.getElementById("seconds");
         
         btn.disabled = true;
         btn.innerText = "PROCESSING...";
         ldText.style.display = "block";
-        
-        // STAGGER LOGIC: Wait a random 1-5 seconds before calling Android
-        // This prevents "Traffic Jams" if 10+ people click at once.
-        let staggerTime = Math.floor(Math.random() * 4000) + 1000; 
 
-        setTimeout(() => {
-            Android.verifyStudent(name, code);
-            ldText.style.display = "none";
-            cdText.style.display = "block";
-            btn.innerText = "CHECK RESULT";
-        }, staggerTime);
+        // Check if we are inside the App or in a Browser
+        if (typeof Android !== "undefined") {
+            // INSIDE APP: Use the high-speed Android bridge
+            setTimeout(() => {
+                Android.verifyStudent(name, code);
+                finishProcess();
+            }, 1000);
+        } else {
+            // INSIDE CHROME/BROWSER: Use web fetch logic
+            try {
+                const found = await verifyWeb(name, code);
+                if (!found) alert("Invalid credentials or result not found.");
+            } catch (e) {
+                alert("Connection error. Please try again.");
+            }
+            finishProcess();
+        }
+    }
 
-        // 60-second cooldown timer
+    async function verifyWeb(name, code) {
+        // Try Primary School first
+        let found = await checkBin(BIN_PRIMARY, name, code);
+        if (!found) {
+            // Then try High School
+            found = await checkBin(BIN_HIGH, name, code);
+        }
+        return found;
+    }
+
+    async function checkBin(binId, name, code) {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+            headers: { 'X-Master-Key': API_KEY }
+        });
+        const data = await res.json();
+        const record = data.record;
+
+        for (const key in record) {
+            // Key format is "Name | Session" or just "Name"
+            if (key === name || key.startsWith(name + " | ")) {
+                const parts = record[key].split("|");
+                // parts[0] is the code
+                if (parts[0] === code) {
+                    window.open(parts[1], '_blank'); // Open the PDF URL
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function finishProcess() {
+        const btn = document.getElementById("checkBtn");
+        const ldText = document.getElementById("loadingText");
+        const cdText = document.getElementById("countdownText");
+        const secSpan = document.getElementById("seconds");
+
+        ldText.style.display = "none";
+        cdText.style.display = "block";
+        btn.innerText = "CHECK RESULT";
+
         let timeLeft = 60;
         secSpan.innerText = timeLeft;
 
         const timer = setInterval(() => {
             timeLeft--;
             secSpan.innerText = timeLeft;
-            
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 canClick = true;
