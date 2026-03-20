@@ -248,9 +248,9 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
             <div style="text-align:center; margin-bottom: 20px;"><mark style="background:var(--primary-color);color:var(--white);padding:8px 15px;border-radius:4px;font-weight:bold;">REPORT SHEET</mark></div>
 
             <div class="header-grid">
-                <div><label style="font-size:11px">NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"></div>
-                <div><label style="font-size:11px">SESSION:</label><input id="session" type="text" style="font-size:11px;width:fit-content"></div>
+                <div><label style="font-size:11px">NAME:</label><input id="studentName" type="text" style="font-size:11px;width:fit-content"oninput="this.value = this.value.toUpperCase()"></div>
+                <div><label style="font-size:11px">CLASS:</label><input id="studentClass" type="text" style="font-size:11px;width:fit-content"oninput="this.value = this.value.toUpperCase()"></div>
+                <div><label style="font-size:11px">SESSION:</label><input id="session" value="2ND TERM 2025/2026" type="text" style="font-size:11px;width:fit-content"oninput="this.value = this.value.toUpperCase()"></div>
                 <div><label style="font-size:11px">POSITION:</label><input id="position" type="text" style="font-size:11px;width:fit-content" readonly></div>
                 <div><label style="font-size:11px">ATTENDANCE:</label><input id="attendance" type="text" style="font-size:11px;width:fit-content"></div>
                 <div><label style="font-size:11px">NO IN CLASS:</label><input id="classSize" type="text" style="font-size:11px;width:fit-content" readonly></div>
@@ -362,7 +362,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
         const data = pages[currentIndex];
         if(document.getElementById("studentName")) document.getElementById("studentName").value = data.name || "";
         if(document.getElementById("studentClass")) document.getElementById("studentClass").value = data.class || "";
-        if(document.getElementById("session")) document.getElementById("session").value = data.session || "";
+        if(document.getElementById("session")) document.getElementById("session").value = data.session || "2ND TERM 2025/2026";
         if(document.getElementById("attendance")) document.getElementById("attendance").value = data.attendance || "";
         if(document.getElementById("photoPreview")) document.getElementById("photoPreview").src = data.photo || "";
         if(document.getElementById("teacherComment")) document.getElementById("teacherComment").value = data.teacherComment || "";
@@ -430,7 +430,7 @@ th:nth-child(6), td:nth-child(6) { width: 22%; }  /* Remark */
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: true 
+                compress: true
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
