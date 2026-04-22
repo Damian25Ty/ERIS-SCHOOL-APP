@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1100">
+    <title>ERIS SCHOOL - Paid Students History</title>
+    <style>
+        :root {
+            --primary-blue: #004085;
+            --accent-blue: #007bff;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            width: 1100px; /* Fixed width for desktop feel on mobile */
+        }
+
+        .container {
+            width: 1000px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h2 { color: var(--primary-blue); margin: 0; }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f4f6f9;
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        tr:hover { background-color: #f9f9f9; }
+
+        .row-alert {
+            background-color: #fff3f3 !important;
+            animation: beep 1.5s infinite;
+        }
+        @keyframes beep {
+            0% { border: 2px solid transparent; }
+            50% { border: 2px solid red; background-color: #ffeaea; }
+            100% { border: 2px solid transparent; }
+        }
+
+        .status-pill {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-paid { background-color: #d4edda; color: #155724; }
+        .status-failed { background-color: #f8d7da; color: #721c24; }
+
+        .btn-action {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .btn-paid { background-color: var(--success-green); }
+        .btn-unpaid { background-color: var(--danger-red); }
+        .btn-view { background-color: #6c757d; text-decoration: none; display: inline-block; }
+
+        .btn-refresh {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .footer-actions {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        .btn-danger-large {
+            background-color: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .chat-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .chat-fab svg { width: 35px; height: 35px; fill: white; }
+        .dispute-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            font-size: 14px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .dispute-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .dispute-content {
+            background: white;
+            width: 600px;
+            height: 80vh;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .dispute-header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dispute-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .dispute-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .dispute-card img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .no-data { text-align: center; padding: 40px; color: #888; }
+        .back-link { display: inline-block; margin-top: 20px; text-decoration: none; color: var(--accent-blue); }
+
+        #botOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .bot-avatar {
+            font-size: 70px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+        .bot-name { font-weight: bold; color: var(--primary-blue); font-size: 1.5em; margin-bottom: 5px; }
+        .bot-status { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div id="botOverlay">
+    <div class="bot-avatar">🤖</div>
+    <div class="bot-name">ERIS OFFICIAL PAGE</div>
+    <div class="bot-status">Updating decision...</div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h2>PAYMENT VERIFICATION</h2>
+        <button class="btn-refresh" onclick="loadPayments()">Refresh List</button>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="Search student, class (e.g. Pry 1) or description..." onkeyup="filterTable()">
+
+    <table id="paymentTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Receipt</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="paymentBody">
+            <!-- Data will be loaded here -->
+        </tbody>
+    </table>
+    <div id="noData" class="no-data" style="display: none;">No payment records found.</div>
+
+    <div class="footer-actions">
+        <button class="btn-danger-large" onclick="deleteAllPaymentHistory()">DELETE ALL PAYMENT HISTORY</button>
+    </div>
+
+    <a href="landingPage.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+<!-- Floating Action Button for Disputed Claims -->
+<div class="chat-fab" onclick="openDisputeModal()">
+    <div id="disputeCount" class="dispute-count">0</div>
+    <svg viewBox="0 0 24 24">
+        <path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z M20,16H5.2L4,17.2V4h16V16z M7,9h10V7H7V9z M7,13h10v-2H7V13z"></path>
+    </svg>
+</div>
+
+<!-- Dispute Modal -->
+<div id="disputeModal" class="dispute-modal">
+    <div class="dispute-content">
+        <div class="dispute-header">
+            <h3>Disputed Payments (Evidence Uploads)</h3>
+            <button onclick="closeDisputeModal()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="disputeList" class="dispute-list">
+            <!-- Disputed items will appear here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
+    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+
+    function abbreviateClass(className) {
+        if (!className) return "N/A";
+        let c = className.toUpperCase();
+        if (c.includes("PRE-NURSERY")) return c.replace("PRE-NURSERY", "Prn");
+        if (c.includes("NURSERY")) return c.replace("NURSERY", "Nur");
+        if (c.includes("PRIMARY")) return c.replace("PRIMARY", "Pry");
+        return c;
+    }
+
+    async function loadPayments() {
+        const body = document.getElementById('paymentBody');
+        const noData = document.getElementById('noData');
+        const disputeList = document.getElementById('disputeList');
+        const disputeBadge = document.getElementById('disputeCount');
+
+        body.innerHTML = '<tr><td colspan="8" style="text-align:center">Loading payments...</td></tr>';
+        noData.style.display = "none";
+        disputeList.innerHTML = "";
+        let disputeCount = 0;
+
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            const data = await res.json();
+            const record = data.record;
+
+            const paymentIds = Object.keys(record)
+                .filter(key => key.startsWith("PAYMENT_"))
+                .sort((a, b) => b.split('_')[1] - a.split('_')[1]);
+
+            if (paymentIds.length === 0) {
+                body.innerHTML = "";
+                noData.style.display = "block";
+                return;
+            }
+
+            body.innerHTML = "";
+            paymentIds.forEach(id => {
+                const p = record[id];
+                if (p && p.name) {
+                    const statusClass = p.status === 'PAID' ? 'status-paid' : (p.status === 'UNPAID' ? 'status-failed' : 'status-pending');
+                    const receiptBtn = p.receipt ? `<a href="${p.receipt}" target="_blank" class="btn-action btn-view">VIEW</a>` : 'None';
+                    const isAlert = p.alert === true;
+                    const classDisplay = abbreviateClass(p.class);
+
+                    const row = `
+                        <tr class="${isAlert ? 'row-alert' : ''}">
+                            <td style="font-size: 11px; color: #666;">${p.date || 'N/A'}</td>
+                            <td style="font-weight: bold;">${p.name} ${isAlert ? '⚠️' : ''}</td>
+                            <td style="font-weight: bold; color: #004085;">${classDisplay}</td>
+                            <td style="color: green; font-weight: bold;">₦${Number(p.amount || 0).toLocaleString()}</td>
+                            <td style="font-size: 12px; color: #555;">${p.description || 'N/A'}</td>
+                            <td>${receiptBtn}</td>
+                            <td><span class="status-pill ${statusClass}">${p.status || 'PENDING'}</span></td>
+                            <td>
+                                <button class="btn-action btn-paid" onclick="updateStatus('${id}', 'PAID')">Paid</button>
+                                <button class="btn-action btn-unpaid" onclick="updateStatus('${id}', 'UNPAID')">Unpaid</button>
+                            </td>
+                        </tr>
+                    `;
+                    body.innerHTML += row;
+
+                    if (p.dispute_receipt) {
+                        disputeCount++;
+                        const disputeCard = `
+                            <div class="dispute-card">
+                                <b>Student:</b> ${p.name}<br>
+                                <b>Class:</b> ${classDisplay}<br>
+                                <b>Contact:</b> ${p.dispute_phone || 'N/A'}<br>
+                                <img src="${p.dispute_receipt}">
+                                <div style="margin-top:10px;">
+                                    <button class="btn-action btn-paid" onclick="updateStatus('${id}', 'PAID')">Confirm & Mark Paid</button>
+                                    <button class="btn-action btn-unpaid" onclick="updateStatus('${id}', 'UNPAID')">Decline Again</button>
+                                </div>
+                            </div>
+                        `;
+                        disputeList.innerHTML += disputeCard;
+                    }
+                }
+            });
+
+            if (disputeCount > 0) {
+                disputeBadge.innerText = disputeCount;
+                disputeBadge.style.display = "flex";
+            } else {
+                disputeBadge.style.display = "none";
+            }
+        } catch (error) {
+            body.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red">Error loading data</td></tr>`;
+        }
+    }
+
+    function openDisputeModal() { document.getElementById('disputeModal').style.display = 'flex'; }
+    function closeDisputeModal() { document.getElementById('disputeModal').style.display = 'none'; }
+
+    async function updateStatus(paymentId, newStatus) {
+        if (!confirm(`Are you sure you want to mark this as ${newStatus}?`)) return;
+        const overlay = document.getElementById('botOverlay');
+        overlay.style.display = 'flex';
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+            const data = await res.json();
+            let record = data.record;
+            const p = record[paymentId];
+            if (!p) { overlay.style.display = 'none'; return; }
+            if (newStatus === 'UNPAID' && (p.dispute_receipt || p.final_decline === false)) p.final_decline = true;
+            else if (newStatus === 'PAID') p.final_decline = false;
+            p.status = newStatus;
+            p.alert = false;
+            delete p.dispute_receipt;
+            delete p.dispute_phone;
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            });
+            overlay.style.display = 'none';
+            closeDisputeModal();
+            loadPayments();
+        } catch (error) { alert("Update failed: " + error.message); overlay.style.display = 'none'; }
+    }
+
+    async function deleteAllPaymentHistory() {
+        if (!confirm("DANGER: This will PERMANENTLY DELETE ALL payment records. Are you sure?")) return;
+        const secondConfirm = prompt("Type 'DELETE' to confirm:");
+        if (secondConfirm !== 'DELETE') return;
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+            const data = await res.json();
+            const record = data.record;
+            Object.keys(record).forEach(id => {
+                if (id.startsWith("PAYMENT_") && record[id].receipt_public_id) {
+                    if (typeof Android !== "undefined" && Android.deleteFromCloudinaryById) Android.deleteFromCloudinaryById(record[id].receipt_public_id);
+                }
+            });
+            let newRecord = {};
+            Object.keys(record).forEach(key => { if (!key.startsWith("PAYMENT_")) newRecord[key] = record[key]; });
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify(newRecord)
+            });
+            alert("ALL HISTORY DELETED");
+            loadPayments();
+        } catch (error) { alert("Delete failed: " + error.message); }
+    }
+
+    function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("paymentTable");
+        const tr = table.getElementsByTagName("tr");
+        for (let i = 1; i < tr.length; i++) {
+            let found = false;
+            const tds = tr[i].getElementsByTagName("td");
+            for (let j = 0; j < tds.length; j++) {
+                if (tds[j]) {
+                    const txtValue = tds[j].textContent || tds[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) { found = true; break; }
+                }
+            }
+            tr[i].style.display = found ? "" : "none";
+        }
+    }
+
+    loadPayments();
+</script>
+
+</body>
+</html>

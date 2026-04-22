@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERIS AI - Chat Assistant</title>
+    <style>
+        :root {
+            --primary-blue: #004085;
+            --accent-blue: #007bff;
+            --bg-color: #000;
+            --chat-bg: #111;
+            --user-bubble: #007bff;
+            --bot-bubble: #222;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #header {
+            background: var(--primary-blue);
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #chatContent {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .bot-msg {
+            align-self: flex-start;
+            background: var(--bot-bubble);
+            color: white;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-msg {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 12px;
+            background: #111;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #333;
+        }
+
+        #chatInfo {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 25px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .circle-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            padding: 0;
+        }
+
+        .btn-send { background: var(--accent-blue); }
+        .btn-mic { background: #dc3545; }
+        .btn-attach { background: #6c757d; }
+
+        svg { width: 22px; height: 22px; fill: white; }
+
+        #receiptCanvas { display: none; }
+
+        .receipt-img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid white;
+        }
+
+        .typing-indicator { font-size: 12px; color: #888; margin-left: 15px; margin-bottom: 5px; font-style: italic; display: none; }
+
+        .wa-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .suggestion-chip {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">🤖 ERIS OFFICIAL PAGE BOT</div>
+
+    <div id="chatContent">
+        <!-- Messages -->
+    </div>
+
+    <div id="typingArea" class="typing-indicator">ERIS Bot is speaking...</div>
+
+    <div class="input-area">
+        <button class="circle-btn btn-attach" title="Upload Receipt" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24"><path d="M16.5,6V17.5A4,4 0 0,1 12.5,21.5A4,4 0 0,1 8.5,17.5V5A2.5,2.5 0 0,1 11,2.5A2.5,2.5 0 0,1 13.5,5V15.5A1,1 0 0,1 12.5,16.5A1,1 0 0,1 11.5,15.5V6H10V15.5A2.5,2.5 0 0,0 12.5,18A2.5,2.5 0 0,0 15,15.5V5A4,4 0 0,0 11,1A4,4 0 0,0 7,5V17.5A5.5,5.5 0 0,0 12.5,23A5.5,5.5 0 0,0 18,17.5V6H16.5Z"></path></svg>
+        </button>
+        <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="handleFileUpload(event)">
+
+        <input type="text" placeholder="Type or use mic..." id="chatInfo" onkeypress="if(event.key==='Enter') sendMessage()">
+
+        <button class="circle-btn btn-mic" id="micBtn" onclick="toggleMic()">
+            <svg viewBox="0 0 24 24"><path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"></path></svg>
+        </button>
+
+        <button class="circle-btn btn-send" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"></path></svg>
+        </button>
+    </div>
+
+    <canvas id="receiptCanvas" width="400" height="500"></canvas>
+
+<script>
+    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
+    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+    const ADMIN_WA_LINK = "https://wa.me/2348065791699";
+
+    let currentState = 'IDLE';
+    let recognition;
+    let isListening = false;
+    let targetPaymentId = null;
+    let disputeFile = null;
+
+    // --- VOICE RECOGNITION (Input) ---
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.onresult = (event) => {
+            document.getElementById('chatInfo').value = event.results[0][0].transcript;
+            sendMessage();
+        };
+        recognition.onend = () => {
+            isListening = false;
+            document.getElementById('micBtn').style.background = '#dc3545';
+        };
+    }
+
+    function toggleMic() {
+        if (!recognition) return alert("Microphone not supported.");
+        if (isListening) recognition.stop();
+        else {
+            isListening = true;
+            recognition.start();
+            document.getElementById('micBtn').style.background = '#28a745';
+        }
+    }
+
+    // --- TEXT TO SPEECH (Output) ---
+    function speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.onstart = () => document.getElementById('typingArea').style.display = 'block';
+        utterance.onend = () => document.getElementById('typingArea').style.display = 'none';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function addMessage(text, isBot, isImage = false, hasChip = false) {
+        const chat = document.getElementById('chatContent');
+        const div = document.createElement('div');
+        div.className = `message ${isBot ? 'bot-msg' : 'user-msg'}`;
+        if (isImage) {
+            const img = document.createElement('img');
+            img.src = text;
+            img.className = 'receipt-img';
+            div.appendChild(img);
+        } else {
+            div.innerHTML = text;
+            if (hasChip) {
+                const chip = document.createElement('div');
+                chip.className = 'suggestion-chip';
+                chip.innerText = "Confirm Payment";
+                chip.onclick = () => {
+                    document.getElementById('chatInfo').value = "Confirm Payment";
+                    sendMessage();
+                };
+                div.appendChild(chip);
+            }
+        }
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+
+        if (isBot && !isImage) {
+            speak(text.replace(/<[^>]*>/g, ''));
+        }
+    }
+
+    // --- CORE LOGIC ---
+    function sendMessage() {
+        const input = document.getElementById('chatInfo');
+        const text = input.value.trim();
+        if (!text) return;
+        addMessage(text, false);
+        input.value = "";
+        processBotResponse(text.toLowerCase());
+    }
+
+    async function processBotResponse(text) {
+        if (currentState === 'IDLE') {
+            if (text.includes('payment') || text.includes('confirm')) {
+                addMessage("Please tell me the **Full Name** of the student.", true);
+                currentState = 'WAITING_NAME';
+            } else {
+                addMessage("Hello, how can i help you today?", true, false, true);
+            }
+        }
+        else if (currentState === 'WAITING_NAME') {
+            const studentName = text.toUpperCase();
+            addMessage(`Checking records for <b>${studentName}</b>...`, true);
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const data = await res.json();
+                const record = data.record;
+                let found = null;
+                let paymentId = null;
+                Object.keys(record).forEach(id => {
+                    if (id.startsWith("PAYMENT_") && record[id].name.toUpperCase() === studentName) {
+                        found = record[id];
+                        paymentId = id;
+                    }
+                });
+
+                if (found) {
+                    targetPaymentId = paymentId;
+                    if (found.status === 'PAID') {
+                        addMessage(`Confirmation successful! The payment of <b>₦${Number(found.amount).toLocaleString()}</b> for <b>${found.name}</b> has been confirmed.`, true);
+                        generateReceipt(found);
+                        currentState = 'IDLE';
+                    }
+                    else if (found.status === 'PENDING') {
+                        addMessage(`Your transaction of <b>₦${Number(found.amount).toLocaleString()}</b> for <b>${found.name}</b> is still under processing. Please check back later.`, true);
+                        record[paymentId].alert = true;
+                        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                            method: 'PUT',
+                            headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
+                            body: JSON.stringify(record)
+                        });
+                        currentState = 'IDLE';
+                    }
+                    else if (found.final_decline === true) {
+                        addMessage(`This payment of ₦${found.amount} for ${found.name} has been declined again by the administrator as the payment was unsuccessful.`, true);
+                        addMessage(`<a href="${ADMIN_WA_LINK}" class="wa-link">CHAT WITH ADMIN ON WHATSAPP</a>`, true);
+                        currentState = 'IDLE';
+                    }
+                    else {
+                        addMessage(`Your payment submission for <b>${found.name}</b> was marked as unpaid.`, true);
+                        addMessage("If you are sure you have paid, please **upload your receipt** using the paperclip icon.", true);
+                        currentState = 'WAITING_UPLOAD';
+                    }
+                } else {
+                    addMessage(`Record not found for "${studentName}".`, true);
+                    currentState = 'IDLE';
+                }
+            } catch (e) { addMessage("Connection error.", true); currentState = 'IDLE'; }
+        }
+        else if (currentState === 'WAITING_PHONE') {
+            addMessage("Saving dispute evidence...", true);
+            try {
+                const formData = new FormData();
+                formData.append('file', disputeFile);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                const cloudData = await cloudRes.json();
+
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
+                const data = await res.json();
+                let record = data.record;
+                if (targetPaymentId && record[targetPaymentId]) {
+                    record[targetPaymentId].dispute_receipt = cloudData.secure_url;
+                    record[targetPaymentId].dispute_phone = text;
+                    record[targetPaymentId].alert = true;
+                    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                        method: 'PUT',
+                        headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(record)
+                    });
+                    addMessage(`Thank you. Your evidence and phone number <b>${text}</b> have been recorded.`, true);
+                }
+            } catch (e) { addMessage("Error saving info.", true); }
+            currentState = 'IDLE';
+        }
+    }
+
+    function handleFileUpload(event) {
+        if (currentState !== 'WAITING_UPLOAD') return;
+        const file = event.target.files[0];
+        if (file) {
+            disputeFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                addMessage(e.target.result, false, true);
+                addMessage("Receipt received. Now, please enter your **Phone Number**.", true);
+                currentState = 'WAITING_PHONE';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function generateReceipt(p) {
+        const canvas = document.getElementById('receiptCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 400, 500);
+        ctx.strokeStyle = "#004085"; ctx.lineWidth = 15; ctx.strokeRect(0, 0, 400, 500);
+        ctx.fillStyle = "#004085"; ctx.font = "bold 26px Arial"; ctx.fillText("ERIS EDUCATION CENTRE", 35, 60);
+        ctx.fillStyle = "#000"; ctx.font = "18px Arial";
+        ctx.fillText(`Date: ${p.date || new Date().toLocaleDateString()}`, 40, 160);
+        ctx.fillText(`Student: ${p.name}`, 40, 200);
+        ctx.font = "bold 22px Arial"; ctx.fillStyle = "green"; ctx.fillText(`Amount Paid: ₦${Number(p.amount).toLocaleString()}`, 40, 310);
+        ctx.save(); ctx.translate(280, 400); ctx.rotate(-0.3); ctx.strokeStyle = "red"; ctx.lineWidth = 5; ctx.strokeRect(-85, -45, 170, 90);
+        ctx.fillStyle = "red"; ctx.font = "bold 32px Arial"; ctx.fillText("PAID", -40, 10); ctx.restore();
+        addMessage(canvas.toDataURL(), true, true);
+    }
+
+    window.onload = () => setTimeout(() => addMessage("Hello, how can i help you today?", true, false, true), 1000);
+</script>
+</body>
+</html>

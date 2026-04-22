@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERIS SCHOOL - Payment Portal</title>
+    <style>
+        :root {
+            --primary-blue: #004085;
+            --accent-blue: #007bff;
+            --bg-color: #f0f2f5;
+            --white: #ffffff;
+            --success-green: #28a745;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .payment-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .btn-pay {
+            background-color: var(--success-green);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-pay:disabled {
+            background-color: #ccc;
+        }
+
+        .btn-back {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        #statusMessage {
+            margin-top: 15px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            word-break: break-word;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content h3 { color: var(--primary-blue); margin-top: 0; }
+        .modal-content input { margin: 10px 0; }
+
+        .success-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            text-align: center;
+            padding: 20px;
+        }
+        .success-overlay h2 { color: var(--success-green); }
+        .success-overlay p { font-size: 18px; color: #555; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="payment-card">
+    <div class="header">
+        <h2>FEE PAYMENT</h2>
+        <p>ERIS EDUCATION CENTRE</p>
+    </div>
+
+    <div class="form-group">
+        <label>Student Full Name</label>
+        <input type="text" id="studentName" placeholder="Enter student name" oninput="this.value = this.value.toUpperCase()">
+    </div>
+
+    <div class="form-group">
+        <label>Class</label>
+        <select id="studentClass">
+            <option value="">Select Class</option>
+            <option>PRE-NURSERY</option>
+            <option>NURSERY 1</option>
+            <option>NURSERY 2</option>
+            <option>NURSERY 3</option>
+            <option>PRIMARY 1</option>
+            <option>PRIMARY 2</option>
+            <option>PRIMARY 3</option>
+            <option>PRIMARY 4</option>
+            <option>PRIMARY 5</option>
+            <option>PRIMARY 6</option>
+            <option>JSS 1</option>
+            <option>JSS 2</option>
+            <option>JSS 3</option>
+            <option>SSS 1</option>
+            <option>SSS 2</option>
+            <option>SSS 3</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Session / Term</label>
+        <select id="session">
+            <option value="">Select Term</option>
+            <option>1ST TERM</option>
+            <option>2ND TERM</option>
+            <option>3RD TERM</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Amount to Pay (₦)</label>
+        <input type="number" id="amount" placeholder="Enter amount">
+    </div>
+
+    <div class="form-group">
+        <label>Description (Indicate what you are paying for)</label>
+        <textarea id="description" placeholder="e.g. 1st Term School Fees, Uniform, Books, etc."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Payment Method</label>
+        <select id="method">
+            <option>CASH</option>
+            <option>BANK TRANSFER</option>
+            <option>POS</option>
+        </select>
+    </div>
+
+    <button class="btn-pay" id="payBtn" onclick="processPayment()">CONFIRM PAYMENT</button>
+    <div id="statusMessage"></div>
+
+    <a href="landingPage.html" class="btn-back">Return to Home</a>
+</div>
+
+<!-- Modal for Receipt Upload -->
+<div id="receiptModal" class="modal">
+    <div class="modal-content">
+        <h3>UPLOAD RECEIPT</h3>
+        <p>Please upload your payment receipt below.</p>
+
+        <div class="form-group" style="text-align: center; color:blue;">
+            <label>ERIS ACCOUNT DETAILS</label>
+            <b style="font-size:23px">0682426997 <br><br>
+                GT BANK <br><br>
+            ERIS EDUCATION CENTER</b>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+            <label>Select Receipt Image</label>
+            <input type="file" id="receiptFile" accept="image/*">
+        </div>
+
+        <button class="btn-pay" id="uploadBtn" onclick="uploadAndSubmit()">UPLOAD & SUBMIT</button>
+        <button onclick="closeModal()" style="border:none; background:none; color:red; cursor:pointer; margin-top:10px;">Cancel</button>
+    </div>
+</div>
+
+<!-- Final Success Overlay -->
+<div id="successOverlay" class="success-overlay">
+    <div style="font-size: 60px;">✅</div>
+    <h2>Submission Successful!</h2>
+    <p>Your payment has been submitted successfully.</p>
+    <p>You can check your payment status via the <b>Chat Assistant</b> on the home screen once confirmed.</p>
+    <button class="btn-pay" onclick="window.location.href='landingPage.html'" style="max-width: 200px;">OK</button>
+</div>
+
+<script>
+    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
+    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+
+    function closeModal() {
+        document.getElementById('receiptModal').style.display = 'none';
+    }
+
+    function processPayment() {
+        const name = document.getElementById('studentName').value.trim();
+        const sClass = document.getElementById('studentClass').value;
+        const session = document.getElementById('session').value;
+        const amount = document.getElementById('amount').value;
+        const desc = document.getElementById('description').value.trim();
+
+        if (!name || !sClass || !session || !amount || !desc) {
+            alert("Please fill all fields, including the description.");
+            return;
+        }
+
+        document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    async function uploadAndSubmit() {
+        const fileInput = document.getElementById('receiptFile');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a receipt file");
+            return;
+        }
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        uploadBtn.disabled = true;
+        uploadBtn.innerText = "Processing...";
+
+        try {
+            // 1. Upload to Cloudinary
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            const cloudRes = await fetch(CLOUDINARY_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!cloudRes.ok) throw new Error("Receipt upload failed. Please check internet connection.");
+
+            const cloudData = await cloudRes.json();
+            const receiptUrl = cloudData.secure_url;
+            const publicId = cloudData.public_id;
+
+            // 2. Proceed with JSONBin Update
+            await finalizePayment(receiptUrl, publicId);
+
+        } catch (error) {
+            alert(error.message);
+            uploadBtn.disabled = false;
+            uploadBtn.innerText = "UPLOAD & SUBMIT";
+        }
+    }
+
+    async function finalizePayment(receiptUrl, publicId) {
+        const name = document.getElementById('studentName').value.trim();
+        const sClass = document.getElementById('studentClass').value;
+        const session = document.getElementById('session').value;
+        const amount = document.getElementById('amount').value;
+        const method = document.getElementById('method').value;
+        const description = document.getElementById('description').value.trim();
+
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                method: 'GET',
+                headers: { 'X-Master-Key': API_KEY }
+            });
+
+            if (!res.ok) throw new Error("Connection Error");
+
+            const data = await res.json();
+            let record = data.record;
+
+            const paymentId = "PAYMENT_" + Date.now();
+            const paymentData = {
+                type: "FEE_RECORD",
+                name: name,
+                class: sClass,
+                session: session,
+                amount: amount,
+                method: method,
+                description: description,
+                receipt: receiptUrl,
+                receipt_public_id: publicId,
+                date: new Date().toLocaleString(),
+                status: "PENDING"
+            };
+
+            record[paymentId] = paymentData;
+
+            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'X-Master-Key': API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(record)
+            });
+
+            if (updateRes.ok) {
+                localStorage.setItem('last_payment_id', paymentId);
+                closeModal();
+                document.getElementById('successOverlay').style.display = 'flex';
+                if (typeof Android !== "undefined") {
+                    Android.showToast("Payment Submitted Successfully");
+                }
+            } else {
+                throw new Error("Failed to save data");
+            }
+
+        } catch (error) {
+            alert("Error finalizing payment: " + error.message);
+            document.getElementById('uploadBtn').disabled = false;
+            document.getElementById('uploadBtn').innerText = "UPLOAD & SUBMIT";
+        }
+    }
+</script>
+
+</body>
+</html>
