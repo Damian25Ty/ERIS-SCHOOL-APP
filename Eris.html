@@ -2,7 +2,6 @@
 <html>
 <head>
     <script>
-        // The same Gist URL you used in Android Studio
         const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
 
         async function checkKillSwitch() {
@@ -11,7 +10,7 @@
                 const status = await response.text();
                 if (status.trim().toUpperCase() === "TERMINATE") {
                     document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
-                    window.location.href = "about:blank"; // Or redirect them away
+                    window.location.href = "about:blank";
                 }
             } catch (e) {
                 console.error("Kill switch check failed", e);
@@ -20,11 +19,15 @@
         checkKillSwitch();
     </script>
     <meta charset="UTF-8">
-    <title>Main Menu</title>
+    <title>ERIS Command Center</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        :root {
+            --primary-blue: #004085;
+            --accent-blue: #007bff;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,34 +37,80 @@
         }
         .container {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #333;
+            color: var(--primary-blue);
             margin-bottom: 20px;
+            font-size: 24px;
         }
-        #commandInput {
+        input {
             width: 100%;
             padding: 15px;
-            font-size: 18px;
-            border: 1px solid #ccc;
+            font-size: 16px;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            box-sizing: border-box; /* Ensures padding doesn't affect width */
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            outline: none;
         }
+        input:focus { border-color: var(--accent-blue); }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:active { transform: scale(0.98); }
+
+        #commandArea { display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome</h1>
-        <input type="text" id="commandInput" placeholder="Enter a command...">
+
+    <!-- Verification Section -->
+    <div id="verify" class="container">
+        <h1>ACCESS CONTROL</h1>
+        <p style="color: #666; margin-bottom: 20px;">Enter Passkey to open Command Center</p>
+        <input type="password" id="passkeyInput" placeholder="Enter passkey">
+        <button id="openButton" onclick="openPage()">UNLOCK</button>
+    </div>
+
+    <!-- Command Section -->
+    <div id="commandArea" class="container">
+        <h1>COMMAND CENTER</h1>
+        <p style="color: #666; font-size: 14px;">Type a destination (e.g. check result, primary school result, high school result.s)</p>
+        <input type="text" id="commandInput" placeholder="Enter destination name...">
+        <p id="helpText" style="font-size: 12px; color: #888; margin-top: 10px;"></p>
     </div>
 
     <script>
+        function openPage() {
+            let passkey = document.getElementById("passkeyInput").value;
+            if (passkey === "2004Eris"){
+                document.getElementById("verify").style.display = "none";
+                document.getElementById("commandArea").style.display = "block";
+                document.getElementById("commandInput").focus();
+            } else {
+                alert("Incorrect passkey");
+            }
+        }
+
         document.getElementById("commandInput").addEventListener("keydown", function(e) {
             if (e.key === "Enter") {
                 let command = this.value.trim().toLowerCase();
+
                 switch (command) {
                     case "admin":
                         window.location.href = "admin.html";
@@ -69,8 +118,8 @@
                     case "admin 2":
                         window.location.href = "admin2.html";
                         break;
-                    case "result making":
-                        window.location.href = "result_making.html";
+                    case "primary school result":
+                        window.location.href = "index.html";
                         break;
                     case "high school result":
                         window.location.href = "index2.html";
@@ -81,11 +130,23 @@
                     case "saved results":
                         window.location.href = "display.html";
                         break;
+                    case "paid":
+                    case "payment history":
+                        window.location.href = "paid.html";
+                        break;
+                    case "chat":
+                    case "assistant":
+                        window.location.href = "chat.html";
+                        break;
+                    case "make payment":
+                        window.location.href = "payment.html";
+                        break;
                     default:
+                        const msg = "Invalid command. Try: Admin, Result Making, Paid, Chat, Check Result";
                         if (typeof Android !== "undefined" && Android.showToast) {
-                            Android.showToast("Invalid command. Available: Admin, Admin 2, High School Result, Result Making, Check Result, Saved Results");
+                            Android.showToast(msg);
                         } else {
-                            alert("Invalid command");
+                            alert(msg);
                         }
                         break;
                 }
