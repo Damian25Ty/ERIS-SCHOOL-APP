@@ -1,9 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
+
+        async function checkKillSwitch() {
+            try {
+                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
+                const status = await response.text();
+                if (status.trim().toUpperCase() === "TERMINATE") {
+                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
+                    window.location.href = "about:blank";
+                }
+            } catch (e) {
+                console.error("Kill switch check failed", e);
+            }
+        }
+        checkKillSwitch();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERIS SCHOOL APP - Landing Page</title>
+    <title>ERIS SCHOOL APP - Home Page</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary-blue: #004085;
@@ -13,6 +35,7 @@
             --white: #ffffff;
             --success-green: #28a745;
         }
+
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -51,10 +74,10 @@
             width: 90%;
             max-width: 800px;
             margin: 30px auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            padding-bottom: 80px; /* Space for FAB */
+            padding-bottom: 100px; /* Space for FABs */
         }
 
         .nav-card {
@@ -91,7 +114,6 @@
         }
 
         .section-box {
-            grid-column: span 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
@@ -101,18 +123,12 @@
             border-radius: 15px;
         }
 
-        .full-width {
-            grid-column: span 2;
-        }
-
-        /* Floating Chat Icon */
-        .chat-fab {
+        /* Floating Action Buttons */
+        .fab {
             position: fixed;
             bottom: 25px;
-            right: 25px;
             width: 65px;
             height: 65px;
-            background-color: var(--accent-blue);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -120,11 +136,21 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             cursor: pointer;
             z-index: 9999;
-            text-decoration: none;
             transition: transform 0.3s;
         }
-        .chat-fab:hover { transform: scale(1.1); }
-        .chat-fab svg { width: 32px; height: 32px; fill: white; }
+        .fab:hover { transform: scale(1.1); }
+        .fab:active { transform: scale(0.9); }
+        .fab svg { width: 35px; height: 35px; fill: white; }
+
+        .chat-fab {
+            right: 25px;
+            background-color: var(--accent-blue);
+        }
+
+        .plus-fab {
+            left: 25px;
+            background-color: var(--success-green);
+        }
 
         /* Notification Badge */
         .notification-badge {
@@ -184,7 +210,9 @@
     <h1>ERIS EDUCATION CENTRE</h1>
     <p style="font-size: 14px; margin-top: 5px;">School Management Platform</p>
 </header>
-    <!-- Fees Section (Horizontal) -->
+
+<div class="container">
+    <!-- Fees Section -->
     <div class="section-box">
         <h2 style="grid-column: span 2; text-align: center; color: var(--primary-blue); margin: 0 0 10px 0; font-size: 18px;">FEES & PAYMENTS</h2>
         <a href="payment.html" class="nav-card" style="border-left: 5px solid var(--success-green);">
@@ -197,7 +225,7 @@
         </a>
     </div>
 
-    <!-- Results & Command Section (Horizontal) -->
+    <!-- Results & Command Section -->
     <div class="section-box">
         <h2 style="grid-column: span 2; text-align: center; color: var(--primary-blue); margin: 0 0 10px 0; font-size: 18px;">ACCESS & COMMANDS</h2>
         <a href="result_portal.html" class="nav-card">
@@ -210,8 +238,16 @@
         </a>
     </div>
 </div>
+
+<!-- Plus Sign Button (Opens Gallery with Passcode) -->
+<div class="fab plus-fab" onclick="openProtectedGallery()">
+    <svg viewBox="0 0 24 24">
+        <path d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6V13z"/>
+    </svg>
+</div>
+
 <!-- Floating Chat Button -->
-<a href="chat.html" class="chat-fab">
+<a href="chat.html" class="fab chat-fab">
     <div id="badge" class="notification-badge">!</div>
     <svg viewBox="0 0 24 24">
         <path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z M20,16H5.2L4,17.2V4h16V16z M7,9h10V7H7V9z M7,13h10v-2H7V13z"></path>
@@ -229,26 +265,49 @@
 </div>
 
 <script>
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const PAYMENTS_COLLECTION = "payments";
+
+    function openProtectedGallery() {
+        const passcode = prompt("Enter Security Lock:");
+        if (passcode === "r12Oli3") {
+            window.location.href = "image.html";
+        } else if (passcode !== null) {
+            alert("Incorrect Passcode. Access Denied.");
+        }
+    }
 
     // Notification Logic
     window.onload = async () => {
         const lastPaidId = localStorage.getItem('last_payment_id');
         if (lastPaidId) {
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                const data = await res.json();
-                const record = data.record;
-
-                if (record[lastPaidId] && record[lastPaidId].status !== 'PENDING') {
-                    // Show notification badge and alert bubble
-                    document.getElementById('badge').style.display = 'flex';
-                    document.getElementById('statusAlert').style.display = 'block';
+                const doc = await db.collection(PAYMENTS_COLLECTION).doc(lastPaidId).get();
+                if (doc.exists) {
+                    const payment = doc.data();
+                    if (payment.status !== 'PENDING') {
+                        // Show notification badge and alert bubble
+                        document.getElementById('badge').style.display = 'flex';
+                        document.getElementById('statusAlert').style.display = 'block';
+                    }
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("Notification check error:", e);
+            }
         }
     };
 </script>
