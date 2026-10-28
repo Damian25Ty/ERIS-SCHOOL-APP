@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERIS SCHOOL - Image Gallery</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #004085;
+            --accent-blue: #007bff;
+            --bg-color: #f8f9fa;
+            --white: #ffffff;
+            --danger-red: #dc3545;
+            --success-green: #28a745;
+            --gold: #ffc107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .title-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h2 { color: var(--primary-blue); margin: 0; font-size: 26px; }
+
+        .btn-snap {
+            background-color: var(--gold);
+            border: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            padding: 0;
+        }
+        .btn-snap:active { transform: scale(0.9); }
+        .btn-snap svg { width: 30px; height: 30px; fill: #000; }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            color: white;
+        }
+
+        .btn-upload { background-color: var(--accent-blue); }
+        .btn-delete { background-color: var(--danger-red); }
+        .btn:active { transform: scale(0.95); }
+
+        .gallery {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .img-card {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .img-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            background-color: #eee;
+        }
+
+        .img-card img:hover { transform: scale(1.05); }
+
+        .img-name {
+            margin-top: 8px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            font-size: 13px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .loading-overlay, .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h3 { margin-top: 0; color: var(--primary-blue); font-size: 20px; }
+
+        #studentNameInput {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid var(--accent-blue);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            text-decoration: none;
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay">
+    <div class="spinner"></div>
+    <div id="loaderText" style="font-size: 18px; font-weight: bold;">Processing...</div>
+    <div id="loaderSubText" style="margin-top: 10px; font-size: 14px; opacity: 0.8;"></div>
+</div>
+
+<!-- Camera Dialog Modal -->
+<div id="nameModal" class="modal-overlay">
+    <div class="modal-content">
+        <img id="capturedPreview" style="width: 100%; height: 250px; object-fit: cover; border-radius: 10px; border: 2px solid #eee; margin-bottom: 15px;">
+        <h3>Enter Student Name</h3>
+        <input type="text" id="studentNameInput" placeholder="TYPE NAME HERE" oninput="handleNameInput(this)">
+        <div class="modal-buttons">
+            <button id="saveCapturedBtn" class="btn" style="background-color: var(--success-green); display: none; flex: 1;" onclick="saveCapturedPhoto()">SAVE</button>
+            <button id="cancelCapturedBtn" class="btn" style="background-color: var(--danger-red); display: block; flex: 1;" onclick="closeModal()">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<div class="header">
+    <div class="title-area">
+        <h2>IMAGE GALLERY</h2>
+        <div class="btn-snap" title="Snap Photo" onclick="openCamera()">
+            <svg viewBox="0 0 24 24">
+                <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z" />
+            </svg>
+        </div>
+    </div>
+    <div class="controls">
+        <button class="btn btn-upload" onclick="document.getElementById('imageInput').click()">UPLOAD PHOTOS</button>
+        <button class="btn btn-delete" onclick="deleteAllImages()">DELETE ALL</button>
+    </div>
+</div>
+
+<input type="file" id="imageInput" style="display: none;" accept="image/*" multiple onchange="handleFileSelect(event)">
+<input type="file" id="cameraInput" style="display: none;" accept="image/*" capture="environment" onchange="handleCameraCapture(event)">
+
+<div class="gallery" id="galleryContainer">
+    <!-- Images will appear here -->
+</div>
+
+<a href="index.html" class="back-link">← Back to Dashboard</a>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const GALLERY_COLLECTION = "primary_gallery";
+
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+
+    let capturedDataUrl = null;
+
+    async function loadImages() {
+        const container = document.getElementById('galleryContainer');
+        container.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 20px;'>Loading optimized gallery...</p>";
+        try {
+            const querySnapshot = await db.collection(GALLERY_COLLECTION).orderBy("timestamp", "desc").get();
+
+            if (querySnapshot.empty) {
+                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #888; padding: 40px;'>No images uploaded yet.<br>Click UPLOAD PHOTOS to start.</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            const fragment = document.createDocumentFragment();
+            querySnapshot.forEach((doc) => {
+                const img = doc.data();
+                const url = img.url;
+                const name = img.studentName || "IMAGE";
+                const thumbUrl = url.replace('/upload/', '/upload/c_thumb,w_400,g_auto,f_auto,q_auto/');
+                const card = document.createElement('div');
+                card.className = 'img-card';
+                card.innerHTML = `<img src="${thumbUrl}" loading="lazy" onclick="window.open('${url}', '_blank')"><div class="img-name">${name}</div>`;
+                fragment.appendChild(card);
+            });
+            container.appendChild(fragment);
+        } catch (error) {
+            console.error("Load gallery error:", error);
+            container.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: red; padding: 20px;'>Error loading images.<br>Please check your connection.</p>";
+        }
+    }
+
+    function openCamera() {
+        if (typeof Android !== 'undefined' && Android.setCameraMode) {
+            Android.setCameraMode(true);
+        }
+        document.getElementById('cameraInput').click();
+    }
+
+    function handleCameraCapture(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const size = Math.min(img.width, img.height);
+                canvas.width = 600;
+                canvas.height = 600;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 600, 600);
+
+                capturedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                document.getElementById('capturedPreview').src = capturedDataUrl;
+                document.getElementById('studentNameInput').value = "";
+                document.getElementById('nameModal').style.display = "flex";
+                toggleModalButtons("");
+                setTimeout(() => document.getElementById('studentNameInput').focus(), 100);
+            };
+            img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+
+    function handleNameInput(el) {
+        el.value = el.value.toUpperCase();
+        toggleModalButtons(el.value.trim());
+    }
+
+    function toggleModalButtons(name) {
+        const saveBtn = document.getElementById('saveCapturedBtn');
+        const cancelBtn = document.getElementById('cancelCapturedBtn');
+        if (name.length > 0) {
+            saveBtn.style.display = "block";
+            cancelBtn.style.display = "block";
+        } else {
+            saveBtn.style.display = "none";
+            cancelBtn.style.display = "block";
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('nameModal').style.display = "none";
+        document.getElementById('cameraInput').value = "";
+        capturedDataUrl = null;
+    }
+
+    async function saveCapturedPhoto() {
+        const name = document.getElementById('studentNameInput').value.trim().toUpperCase();
+        if (!name || !capturedDataUrl) return;
+
+        document.getElementById('nameModal').style.display = "none";
+        uploadProcessedImage(capturedDataUrl, name);
+
+        document.getElementById('cameraInput').value = "";
+        capturedDataUrl = null;
+    }
+
+    async function uploadProcessedImage(dataUrl, studentName) {
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loaderText');
+        loader.style.display = "flex";
+
+        try {
+            loaderText.innerText = "Uploading Photo...";
+            const formData = new FormData();
+            formData.append('file', dataUrl);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            if (!cloudRes.ok) throw new Error("Upload failed");
+
+            const cloudData = await cloudRes.json();
+            const timestamp = Date.now();
+
+            await db.collection(GALLERY_COLLECTION).add({
+                url: cloudData.secure_url,
+                publicId: cloudData.public_id,
+                studentName: studentName,
+                timestamp: timestamp
+            });
+
+            if (typeof Android !== "undefined") Android.showToast("Photo saved successfully!");
+            loadImages();
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Error: " + error.message);
+        } finally {
+            loader.style.display = "none";
+        }
+    }
+
+    async function handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loaderText');
+        const loaderSubText = document.getElementById('loaderSubText');
+        loader.style.display = "flex";
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                loaderText.innerText = `Uploading Image ${i + 1} of ${files.length}`;
+                loaderSubText.innerText = file.name;
+
+                let studentName = file.name.split('.')[0].replace(/[_-]/g, " ").toUpperCase();
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                if (!cloudRes.ok) throw new Error(`Upload failed for ${file.name}`);
+
+                const cloudData = await cloudRes.json();
+                const timestamp = Date.now() + i;
+
+                await db.collection(GALLERY_COLLECTION).add({
+                    url: cloudData.secure_url,
+                    publicId: cloudData.public_id,
+                    studentName: studentName,
+                    timestamp: timestamp
+                });
+            }
+
+            if (typeof Android !== "undefined") Android.showToast(`Batch upload successful!`);
+            loadImages();
+        } catch (error) {
+            console.error("Batch Upload Error:", error);
+            alert("Error: " + error.message);
+        } finally {
+            loader.style.display = "none";
+            loaderSubText.innerText = "";
+            event.target.value = "";
+        }
+    }
+
+    async function deleteAllImages() {
+        if (!confirm("Are you sure you want to PERMANENTLY DELETE all images?")) return;
+        const loader = document.getElementById('loader');
+        loader.style.display = "flex";
+        document.getElementById('loaderText').innerText = "Wiping Gallery...";
+        try {
+            const querySnapshot = await db.collection(GALLERY_COLLECTION).get();
+
+            const deletePromises = [];
+            querySnapshot.forEach((doc) => {
+                const img = doc.data();
+                if (img.publicId && typeof Android !== "undefined" && Android.deleteFromCloudinaryById) {
+                    Android.deleteFromCloudinaryById(img.publicId);
+                }
+                deletePromises.push(db.collection(GALLERY_COLLECTION).doc(doc.id).delete());
+            });
+
+            await Promise.all(deletePromises);
+
+            if (typeof Android !== "undefined") Android.showToast("Gallery Cleared");
+            loadImages();
+        } catch (error) {
+            console.error("Delete gallery error:", error);
+            alert("Delete failed: " + error.message);
+        } finally {
+            loader.style.display = "none";
+        }
+    }
+
+    loadImages();
+</script>
+</body>
+</html>
