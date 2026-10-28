@@ -9,6 +9,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary-blue: #0056b3;
@@ -23,7 +27,7 @@
             font-size: 11px;
         }
         #page {
-            width: 950px; 
+            width: 950px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -98,7 +102,7 @@
 
         /* TABLE ADJUSTMENT FIX */
         .main-container { display: flex; gap: 10px; align-items: flex-start; width: 100%; }
-        .scores-table { flex: 0 0 600px; } 
+        .scores-table { flex: 0 0 600px; }
         .side-tables { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
 
         table { width: 100%; border-collapse: collapse; }
@@ -110,13 +114,13 @@
         .side-tables td { height: 20.8px; }
 
         /* SUBJECT COLUMN: WIDTH 1% FORCES IT TO BE AS NARROW AS POSSIBLE FOR TEXT */
-        .scores-table td:nth-child(2) { 
-            text-align: left; 
-            padding-left: 2px; 
-            white-space: nowrap; 
-            width: 1%; 
+        .scores-table td:nth-child(2) {
+            text-align: left;
+            padding-left: 2px;
+            white-space: nowrap;
+            width: 1%;
         }
-        
+
         input[type="number"], input[type="text"] {
             width: 100%;
             border: none;
@@ -128,19 +132,19 @@
         input:focus { outline: none; background: #fff9c4; }
 
         .footer-section { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        
+
         .comment-box { margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
         .comment-row { display: flex; align-items: baseline; gap: 5px; }
         .comment-row label { font-weight: bold; white-space: nowrap; }
-        .comment-row textarea { 
-            flex: 1; 
-            border: none; 
-            border-bottom: 1px solid #000; 
-            font-family: Arial, sans-serif; 
-            font-size: 13px; 
-            background: transparent; 
-            resize: none; 
-            overflow: hidden; 
+        .comment-row textarea {
+            flex: 1;
+            border: none;
+            border-bottom: 1px solid #000;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            background: transparent;
+            resize: none;
+            overflow: hidden;
             min-height: 18px;
             padding: 0;
             line-height: 1.4;
@@ -195,12 +199,12 @@
             1/2 ERHIGA DRIVE BEHIND GT BANK, SAPELE/WARRI ROAD, SAPELE, DELTA STATE, NIGERIA.<br>
             TEL: +2348037552638, +2348037552639 &nbsp; EMAIL: eriscomputers2001@yahoo.com
         </div>
-        <div class="term-box"><input type="text" id="termYear" value="2ND TERM 2025/2026" style="width:150px; font-weight:bold;" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="term-box"><input type="text" id="termYear" value="3RD TERM 2025/2026" style="width:150px; font-weight:bold;" oninput="this.value = this.value.toUpperCase()"></div>
     </div>
 
     <div class="student-info">
         <div>
-            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;" oninput="this.value = this.value.toUpperCase()">
+            <div class="info-row"><label>NAME:</label><input type="text" id="studentName" style="width:300px; font-size:15px; flex:none;text-align:left;" oninput="this.value = this.value.toUpperCase()" onblur="autoLoadPhoto(this.value)">
                 <label>ATTENDANCE:</label><input type="text" id="attendance" style="width:50px; font-size:15px; flex:none;text-align:left;">
                 <label>CLASS:</label><input type="text" id="studentClass" style="width:190px; font-size:15px; flex:none;text-align:left;" oninput="this.value = this.value.toUpperCase()">
             </div>
@@ -270,30 +274,40 @@
         </div>
         <div class="footer-section">
             <div>
-                <p class="red-text">Next Term Fee: ₦<input type="text" id="nextTermFee" style="width:40px; font-weight:bold; border-bottom:none;"> Outstanding Bills: <input type="text" id="outstandingBills" style="width:40px; border-bottom:none;font-weight:bold">Total Dues: <input type="text" id="totalDues" style="width:40px; border-bottom:none;font-weight:bold"></p>
+                <p class="red-text">Next Term Fee: ₦<input type="text" id="nextTermFee" style="width:50px; font-weight:bold; border-bottom:none;"> Outstanding Bills: <input type="text" id="outstandingBills" style="width:50px; border-bottom:none;font-weight:bold">Total Dues: <input type="text" id="totalDues" style="width:40px; border-bottom:none;font-weight:bold"></p>
                 <p class="red-text">Next Term Begins: <input type="text" id="nextTermBegins" style="width:150px; color:red; font-weight:bold; border-bottom:1px solid red;"></p>
             </div>
         </div>
     </div>
 </div>
 
- <div class="controls" id="controls" style="text-align:center; display:none">
+<div class="controls" id="controls" style="text-align:center; display:none">
     <button class="btn btn-nav" onclick="goBack()">PREVIOUS</button>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;;&emsp;&emsp;&emsp;&emsp;
     <button class="btn btn-nav" onclick="goForward()">NEXT</button>&emsp;&emsp;&emsp;&emsp;
     <button class="btn btn-nav" onclick="newPage()">NEW STUDENT</button>
     <br><br>
     <button class="btn btn-save" id="saveBtn" style="flex:1" onclick="submitResult()">SAVE AS PDF</button>
- </div>
+</div>
 
 <script>
     function hideButtons() {
         document.getElementById('controls').style.display = 'none';
-        document.getElementById('photoInput').style.display = 'none';
+        if(document.getElementById('photoInput')) document.getElementById('photoInput').style.display = 'none';
     }
 
     function showButtons() {
         document.getElementById('controls').style.display = 'block';
-        document.getElementById('photoInput').style.display = 'block';
+        updatePhotoInputVisibility();
+    }
+
+    function updatePhotoInputVisibility() {
+        const preview = document.getElementById('photoPreview');
+        const input = document.getElementById('photoInput');
+        if (preview.src && preview.src.length > 10) {
+            if(input) input.style.display = 'none';
+        } else {
+            if(input) input.style.display = 'block';
+        }
     }
 
     function autoGrow(element) {
@@ -302,11 +316,12 @@
     }
 
     document.getElementById("btn").onclick = function() {
-        let code = document.getElementById("code").value;
-        if (code === "9131") {
+        let codeInput = document.getElementById("code").value;
+        if (codeInput === "9131") {
             document.getElementById("Passcode").style.display = "none";
             document.getElementById("page").style.display = "block";
             document.getElementById("controls").style.display = "block";
+            init();
         } else {
             window.alert("Invalid Passcode");
         }
@@ -314,10 +329,25 @@
 </script>
 
 <script>
-    // Database Config
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69af0b88ae596e708f71b09c"; 
-    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload"; 
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const STUDENTS_COLLECTION = "high_school_students";
+    const GALLERY_COLLECTION = "primary_gallery";
+
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
     const SUBJECTS = ["Mathematics", "Comprehension", "Continuous Writing", "Lexis and Structure", "Phonetics", "Literature in English", "Christian Religious Studies", "History", "Business Studies", "Music", "Civic Education", "Social Studies", "Computer Studies", "Basic Science", "Basic Technology", "Home Economics", "Physical Health Education", "Urhobo", "Agricultural Science", "Phone Repair"];
@@ -350,19 +380,20 @@
     }
 
     function createEmptyData() {
-        return { name: "", class: "", session: "2ND TERM 2025/2026", position: "", attendance: "", noInClass: "", scores: Array.from({length: 20}, () => [0, 0, 0, 0]), photo: "", generalRemark: "", principalComment: "", teacherComment: "", nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "", behaviours: Array.from({length: 12}, () => [false, false, false, false]), psychomotors: Array.from({length: 6}, () => [false, false, false, false]) };
+        return { name: "", class: "", session: "3RD TERM 2025/2026", position: "", attendance: "", noInClass: "", scores: Array.from({length: 20}, () => [0, 0, 0, 0]), photo: "", generalRemark: "", principalComment: "", teacherComment: "", nextTermFee: "", outstandingBills: "", totalDues: "", nextTermBegins: "", behaviours: Array.from({length: 12}, () => [false, false, false, false]), psychomotors: Array.from({length: 6}, () => [false, false, false, false]) };
     }
 
     function newPage() { saveCurrent(); pages.push(createEmptyData()); currentIndex++; resetFields(); }
     function goBack() { if (currentIndex > 0) { saveCurrent(); currentIndex--; restoreData(); } }
-    function goForward() { if (currentIndex < pages.length - 1) { saveCurrent(); currentIndex++; restoreData(); } }
+    function goForward() { if (currentIndex < pages.length - 1) { currentIndex++; restoreData(); } }
 
     function resetFields() {
         document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = "");
         document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
         document.getElementById("photoPreview").src = "";
-        document.getElementById("termYear").value = "2ND TERM 2025/2026";
+        document.getElementById("termYear").value = "3RD TERM 2025/2026";
         document.querySelectorAll('textarea').forEach(el => el.style.height = "18px");
+        updatePhotoInputVisibility();
         calc();
     }
 
@@ -395,7 +426,7 @@
         const data = pages[currentIndex];
         document.getElementById("studentName").value = data.name || "";
         document.getElementById("studentClass").value = data.class || "";
-        document.getElementById("termYear").value = data.session || "2ND TERM 2025/2026";
+        document.getElementById("termYear").value = data.session || "3RD TERM 2025/2026";
         document.getElementById("attendance").value = data.attendance || "";
         document.getElementById("noInClass").value = data.noInClass || "";
         document.getElementById("position").value = data.position || "";
@@ -413,9 +444,9 @@
         }
         for (let i = 0; i < 12; i++) { const b = data.behaviours[i]; document.getElementById(`beh_a_${i}`).checked = b[0]; document.getElementById(`beh_b_${i}`).checked = b[1]; document.getElementById(`beh_c_${i}`).checked = b[2]; document.getElementById(`beh_d_${i}`).checked = b[3]; }
         for (let i = 0; i < 6; i++) { const p = data.psychomotors[i]; document.getElementById(`psy_a_${i}`).checked = p[0]; document.getElementById(`psy_b_${i}`).checked = p[1]; document.getElementById(`psy_c_${i}`).checked = p[2]; document.getElementById(`psy_d_${i}`).checked = p[3]; }
-        
-        // Auto-adjust textareas on restore
+
         document.querySelectorAll('textarea').forEach(el => autoGrow(el));
+        updatePhotoInputVisibility();
         calc();
     }
 
@@ -459,8 +490,31 @@
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = (e) => { document.getElementById('photoPreview').src = e.target.result; saveCurrent(); };
+            reader.onload = (e) => {
+                document.getElementById('photoPreview').src = e.target.result;
+                updatePhotoInputVisibility();
+                saveCurrent();
+            };
             reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function autoLoadPhoto(name) {
+        if (!name || name.length < 3) return;
+        try {
+            const querySnapshot = await db.collection(GALLERY_COLLECTION)
+                .where("studentName", "==", name.toUpperCase())
+                .limit(1)
+                .get();
+
+            if (!querySnapshot.empty) {
+                const foundUrl = querySnapshot.docs[0].data().url;
+                document.getElementById('photoPreview').src = foundUrl;
+                updatePhotoInputVisibility();
+                saveCurrent();
+            }
+        } catch (e) {
+            console.error("Auto-load photo failed", e);
         }
     }
 
@@ -490,61 +544,55 @@
         try {
             const { jsPDF } = window.jspdf;
             const element = document.getElementById('page');
-            
+
             const canvas = await html2canvas(element, { scale: 2.0, useCORS: true });
             const imgData = canvas.toDataURL('image/jpeg', 0.7);
-            
+
             const pdf = new jsPDF({
                 orientation: 'p',
                 unit: 'mm',
                 format: 'a4',
-                compress: true 
+                compress: true
             });
-            
+
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            
+
             const pdfBlob = pdf.output('blob');
 
             const formData = new FormData();
             formData.append('file', pdfBlob, name.replace(/[^a-z0-9]/gi, '_') + '.pdf');
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-            formData.append('resource_type', 'auto'); 
+            formData.append('resource_type', 'auto');
             formData.append('public_id', name.replace(/[^a-z0-9]/gi, '_'));
 
-            const cloudRes = await fetch(CLOUDINARY_URL, { 
-                method: 'POST', 
-                body: formData 
+            const cloudRes = await fetch(CLOUDINARY_URL, {
+                method: 'POST',
+                body: formData
             });
-            
+
             if (!cloudRes.ok) {
                 const errorData = await cloudRes.json();
                 throw new Error(errorData.error.message || "Cloudinary Upload Failed");
             }
-            
+
             const cloudData = await cloudRes.json();
             const pdfUrl = cloudData.secure_url;
 
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
-            const data = await res.json();
-            const record = data.record;
+            const studentRef = db.collection(STUDENTS_COLLECTION).doc(name);
+            const doc = await studentRef.get();
 
-            let code = record[name] ? record[name].split("|")[0] : Math.floor(1000 + Math.random() * 9000).toString();
-            record[name] = `${code}|${pdfUrl}|${studentClass}|${session}`;
+            let code = doc.exists ? doc.data().code : Math.floor(1000 + Math.random() * 9000).toString();
 
-            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: {
-                    'X-Master-Key': API_KEY,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(record)
-            });
-
-            if (!updateRes.ok) throw new Error("Database update failed");
+            await studentRef.set({
+                name: name,
+                code: code,
+                url: pdfUrl,
+                class: studentClass,
+                session: session,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
 
             alert(`${name} PDF created and saved Successfully!`);
         } catch (e) {
@@ -556,8 +604,6 @@
             btn.disabled = false;
         }
     }
-
-    init();
 </script>
 </body>
 </html>
