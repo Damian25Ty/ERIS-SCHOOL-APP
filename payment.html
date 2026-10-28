@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERIS SCHOOL - Payment Portal</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary-blue: #004085;
@@ -214,7 +219,7 @@
     <button class="btn-pay" id="payBtn" onclick="processPayment()">CONFIRM PAYMENT</button>
     <div id="statusMessage"></div>
 
-    <a href="landingPage.html" class="btn-back">Return to Home</a>
+    <a href="index.html" class="btn-back">Return to Home</a>
 </div>
 
 <!-- Modal for Receipt Upload -->
@@ -245,13 +250,29 @@
     <div style="font-size: 60px;">✅</div>
     <h2>Submission Successful!</h2>
     <p>Your payment has been submitted successfully.</p>
-    <p>You can check your payment status via the <b>Chat Assistant</b> on the home screen once confirmed.</p>
-    <button class="btn-pay" onclick="window.location.href='landingPage.html'" style="max-width: 200px;">OK</button>
+    <p>You can check your payment status via the <b> <br> Chat Assistant</b> on the home screen once
+        <br> confirmed.</p>
+    <button class="btn-pay" onclick="window.location.href='Home.html'" style="max-width: 200px;">OK</button>
 </div>
 
 <script>
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const PAYMENTS_COLLECTION = "payments";
+
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
@@ -304,7 +325,7 @@
             const receiptUrl = cloudData.secure_url;
             const publicId = cloudData.public_id;
 
-            // 2. Proceed with JSONBin Update
+            // 2. Proceed with Firestore Update
             await finalizePayment(receiptUrl, publicId);
 
         } catch (error) {
@@ -323,18 +344,9 @@
         const description = document.getElementById('description').value.trim();
 
         try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                method: 'GET',
-                headers: { 'X-Master-Key': API_KEY }
-            });
-
-            if (!res.ok) throw new Error("Connection Error");
-
-            const data = await res.json();
-            let record = data.record;
-
             const paymentId = "PAYMENT_" + Date.now();
             const paymentData = {
+                id: paymentId,
                 type: "FEE_RECORD",
                 name: name,
                 class: sClass,
@@ -345,32 +357,21 @@
                 receipt: receiptUrl,
                 receipt_public_id: publicId,
                 date: new Date().toLocaleString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 status: "PENDING"
             };
 
-            record[paymentId] = paymentData;
+            await db.collection(PAYMENTS_COLLECTION).doc(paymentId).set(paymentData);
 
-            const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: {
-                    'X-Master-Key': API_KEY,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(record)
-            });
-
-            if (updateRes.ok) {
-                localStorage.setItem('last_payment_id', paymentId);
-                closeModal();
-                document.getElementById('successOverlay').style.display = 'flex';
-                if (typeof Android !== "undefined") {
-                    Android.showToast("Payment Submitted Successfully");
-                }
-            } else {
-                throw new Error("Failed to save data");
+            localStorage.setItem('last_payment_id', paymentId);
+            closeModal();
+            document.getElementById('successOverlay').style.display = 'flex';
+            if (typeof Android !== "undefined") {
+                Android.showToast("Payment Submitted Successfully");
             }
 
         } catch (error) {
+            console.error("Payment finalization error:", error);
             alert("Error finalizing payment: " + error.message);
             document.getElementById('uploadBtn').disabled = false;
             document.getElementById('uploadBtn').innerText = "UPLOAD & SUBMIT";
