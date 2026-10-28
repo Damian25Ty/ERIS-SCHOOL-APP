@@ -1,25 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
-
-        async function checkKillSwitch() {
-            try {
-                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
-                const status = await response.text();
-                if (status.trim().toUpperCase() === "TERMINATE") {
-                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
-                    window.location.href = "about:blank";
-                }
-            } catch (e) {
-                console.error("Kill switch check failed", e);
-            }
-        }
-        checkKillSwitch();
-    </script>
     <meta charset="utf-8">
     <title>Student Result Portal</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
         body{ font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
@@ -51,17 +38,28 @@
 </div>
 
 <script>
-    // Database Configuration (Synced with your Android App)
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_PRIMARY = "69a08ed7d0ea881f40dc82ff";
-    const BIN_HIGH = "69af0b88ae596e708f71b09c";
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
 
     let canClick = true;
 
     function checkResult(){
         if (!canClick) return;
 
-        let name = document.getElementById("name").value.trim();
+        let name = document.getElementById("name").value.trim().toUpperCase();
         let code = document.getElementById("code").value.trim();
 
         if(name === "" || code === ""){
@@ -81,19 +79,17 @@
         btn.innerText = "PROCESSING...";
         ldText.style.display = "block";
 
-        // Check if we are inside the App or in a Browser
         if (typeof Android !== "undefined") {
-            // INSIDE APP: Use the high-speed Android bridge
             setTimeout(() => {
                 Android.verifyStudent(name, code);
                 finishProcess();
             }, 1000);
         } else {
-            // INSIDE CHROME/BROWSER: Use web fetch logic
             try {
                 const found = await verifyWeb(name, code);
                 if (!found) alert("Invalid credentials or result not found.");
             } catch (e) {
+                console.error(e);
                 alert("Connection error. Please try again.");
             }
             finishProcess();
@@ -102,31 +98,29 @@
 
     async function verifyWeb(name, code) {
         // Try Primary School first
-        let found = await checkBin(BIN_PRIMARY, name, code);
+        let found = await checkCollection("primary_students", name, code);
         if (!found) {
             // Then try High School
-            found = await checkBin(BIN_HIGH, name, code);
+            found = await checkCollection("high_school_students", name, code);
         }
         return found;
     }
 
-    async function checkBin(binId, name, code) {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-            headers: { 'X-Master-Key': API_KEY }
-        });
-        const data = await res.json();
-        const record = data.record;
+    async function checkCollection(collectionName, name, code) {
+        try {
+            const snapshot = await db.collection(collectionName)
+                .where("name", "==", name)
+                .where("code", "==", code)
+                .limit(1)
+                .get();
 
-        for (const key in record) {
-            // Key format is "Name | Session" or just "Name"
-            if (key === name || key.startsWith(name + " | ")) {
-                const parts = record[key].split("|");
-                // parts[0] is the code
-                if (parts[0] === code) {
-                    window.open(parts[1], '_blank'); // Open the PDF URL
-                    return true;
-                }
+            if (!snapshot.empty) {
+                const student = snapshot.docs[0].data();
+                window.open(student.url, '_blank');
+                return true;
             }
+        } catch (e) {
+            console.error("Firebase fetch error:", e);
         }
         return false;
     }
