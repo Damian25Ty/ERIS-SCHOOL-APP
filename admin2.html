@@ -1,25 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script>
-        const KILL_SWITCH_URL = "https://gist.githubusercontent.com/Damian25Ty/a3dcca011e0a42b3079c26b14a2e8318/raw/Terminat.txt";
-
-        async function checkKillSwitch() {
-            try {
-                const response = await fetch(KILL_SWITCH_URL + "?t=" + Date.now());
-                const status = await response.text();
-                if (status.trim().toUpperCase() === "TERMINATE") {
-                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>This service has been terminated.</h1>";
-                    window.location.href = "about:blank";
-                }
-            } catch (e) {
-                console.error("Kill switch check failed", e);
-            }
-        }
-        checkKillSwitch();
-    </script>
     <meta charset="utf-8">
     <title>High School Admin Panel</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
         h2 { margin-bottom: 10px; color: #333; }
@@ -42,7 +30,7 @@
     <h2>High School Admin Login</h2>
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
-    <input id="sessionInput" placeholder="Enter Session (e.g. 1ST TERM 2025/2026)">
+    <input id="sessionInput" placeholder="Enter Session (e.g. 1ST TERM 2025/2026)" oninput="this.value = this.value.toUpperCase()">
     <button onclick="login()">LOGIN</button>
 </div>
 
@@ -63,8 +51,22 @@
 </div>
 
 <script>
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69af0b88ae596e708f71b09c";
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const STUDENTS_COLLECTION = "high_school_students";
 
     const HIGH_ORDER = ["JSS1", "JSS2", "JSS3", "JSS 1", "JSS 2", "JSS 3", "SS1", "SS2", "SS3", "SS 1", "SS 2", "SS 3"];
 
@@ -101,33 +103,22 @@
         const list = document.getElementById("list");
         list.innerHTML = "<tr><td colspan='3'>Loading results...</td></tr>";
         try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY }});
-            const data = await res.json();
-            const record = data.record;
+            const querySnapshot = await db.collection(STUDENTS_COLLECTION)
+                .where("session", "==", targetSession)
+                .get();
             
-            let groups = {};
-            let matchFound = false;
-
-            for (const key in record) {
-                const val = record[key];
-                if (typeof val !== 'string') continue;
-                
-                const parts = val.split("|");
-                const studentSession = (parts[3] || "UNKNOWN").toUpperCase().trim();
-                
-                if(studentSession !== targetSession) continue;
-                
-                matchFound = true;
-                const studentName = key.split(" | ")[0]; // Get name only
-                const className = (parts[2] || "UNKNOWN").toUpperCase().trim();
-                if(!groups[className]) groups[className] = [];
-                groups[className].push({name: studentName, code: parts[0]});
-            }
-
-            if (!matchFound) {
+            if (querySnapshot.empty) {
                 list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 20px; color: #888;'>No students found for this session.</td></tr>";
                 return;
             }
+
+            let groups = {};
+            querySnapshot.forEach((doc) => {
+                const student = doc.data();
+                const className = (student.class || "UNKNOWN").toUpperCase().trim();
+                if(!groups[className]) groups[className] = [];
+                groups[className].push({name: student.name, code: student.code});
+            });
 
             list.innerHTML = "";
             const sortedClasses = Object.keys(groups).sort((a, b) => {
@@ -158,7 +149,10 @@
                     passCell.appendChild(codeSpan);
                 });
             });
-        } catch(e) { list.innerHTML = "<tr><td colspan='3'>Error loading data.</td></tr>"; }
+        } catch(e) {
+            console.error("Fetch error:", e);
+            list.innerHTML = "<tr><td colspan='3'>Error loading data.</td></tr>";
+        }
     }
 </script>
 </body>
