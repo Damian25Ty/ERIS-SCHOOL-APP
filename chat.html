@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERIS AI - Chat Assistant</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary-blue: #004085;
@@ -170,8 +175,23 @@
     <canvas id="receiptCanvas" width="400" height="500"></canvas>
 
 <script>
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_ID = "69a08ed7d0ea881f40dc82ff";
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const PAYMENTS_COLLECTION = "payments";
+
     const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dzymi6qvr/upload";
     const CLOUDINARY_UPLOAD_PRESET = "ml_default";
     const ADMIN_WA_LINK = "https://wa.me/2348065791699";
@@ -270,22 +290,17 @@
             const studentName = text.toUpperCase();
             addMessage(`Checking records for <b>${studentName}</b>...`, true);
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                const data = await res.json();
-                const record = data.record;
-                let found = null;
-                let paymentId = null;
-                Object.keys(record).forEach(id => {
-                    if (id.startsWith("PAYMENT_") && record[id].name.toUpperCase() === studentName) {
-                        found = record[id];
-                        paymentId = id;
-                    }
-                });
+                // Search for payment in Firestore
+                const querySnapshot = await db.collection(PAYMENTS_COLLECTION)
+                    .where("name", "==", studentName)
+                    .limit(1)
+                    .get();
 
-                if (found) {
-                    targetPaymentId = paymentId;
+                if (!querySnapshot.empty) {
+                    const doc = querySnapshot.docs[0];
+                    const found = doc.data();
+                    targetPaymentId = doc.id;
+
                     if (found.status === 'PAID') {
                         addMessage(`Confirmation successful! The payment of <b>₦${Number(found.amount).toLocaleString()}</b> for <b>${found.name}</b> has been confirmed.`, true);
                         generateReceipt(found);
@@ -293,12 +308,9 @@
                     }
                     else if (found.status === 'PENDING') {
                         addMessage(`Your transaction of <b>₦${Number(found.amount).toLocaleString()}</b> for <b>${found.name}</b> is still under processing. Please check back later.`, true);
-                        record[paymentId].alert = true;
-                        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                            method: 'PUT',
-                            headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
-                            body: JSON.stringify(record)
-                        });
+
+                        // Set alert flag in Firestore
+                        await db.collection(PAYMENTS_COLLECTION).doc(targetPaymentId).update({ alert: true });
                         currentState = 'IDLE';
                     }
                     else if (found.final_decline === true) {
@@ -315,7 +327,11 @@
                     addMessage(`Record not found for "${studentName}".`, true);
                     currentState = 'IDLE';
                 }
-            } catch (e) { addMessage("Connection error.", true); currentState = 'IDLE'; }
+            } catch (e) {
+                console.error("Search error:", e);
+                addMessage("Connection error.", true);
+                currentState = 'IDLE';
+            }
         }
         else if (currentState === 'WAITING_PHONE') {
             addMessage("Saving dispute evidence...", true);
@@ -326,21 +342,18 @@
                 const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
                 const cloudData = await cloudRes.json();
 
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
-                const data = await res.json();
-                let record = data.record;
-                if (targetPaymentId && record[targetPaymentId]) {
-                    record[targetPaymentId].dispute_receipt = cloudData.secure_url;
-                    record[targetPaymentId].dispute_phone = text;
-                    record[targetPaymentId].alert = true;
-                    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                        method: 'PUT',
-                        headers: { 'X-Master-Key': API_KEY, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(record)
+                if (targetPaymentId !== null) {
+                    await db.collection(PAYMENTS_COLLECTION).doc(targetPaymentId).update({
+                        dispute_receipt: cloudData.secure_url,
+                        dispute_phone: text,
+                        alert: true
                     });
                     addMessage(`Thank you. Your evidence and phone number <b>${text}</b> have been recorded.`, true);
                 }
-            } catch (e) { addMessage("Error saving info.", true); }
+            } catch (e) {
+                console.error("Dispute error:", e);
+                addMessage("Error saving info.", true);
+            }
             currentState = 'IDLE';
         }
     }
