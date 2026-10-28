@@ -4,202 +4,337 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saved Results Manager</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary-color: #2e7d32;
             --danger-color: #d32f2f;
             --bg-color: #f4f7fc;
             --white: #ffffff;
+            --blue-color: #004085;
         }
-        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: var(--bg-color); }
-        h2 { text-align: center; color: #333; margin-bottom: 25px; }
-        
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background-color: var(--bg-color); margin: 0; }
+
+        /* Access Dialogue Modal Styles */
+        #accessOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .dialogue-box {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        }
+        .dialogue-box h3 { color: var(--blue-color); margin-top: 0; font-size: 24px; text-transform: uppercase; }
+        .dialogue-box p { color: #666; margin-bottom: 20px; font-size: 16px; line-height: 1.5; }
+
+        .dialogue-box input {
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 24px;
+            text-align: center;
+            text-transform: uppercase;
+            box-sizing: border-box;
+            background: #f9f9f9;
+            outline: none;
+            font-weight: bold;
+            color: var(--blue-color);
+        }
+        .dialogue-box input:focus { border-color: var(--blue-color); background: white; }
+
+        .btn-block {
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            border: none;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .btn-primary { background: var(--blue-color); color: white; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* Results List Layout */
+        #mainList { display: none; padding: 10px; }
+        h2 { text-align: center; color: #333; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+
         .result-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             background: var(--white);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: transform 0.2s;
         }
         .result-item:hover { transform: translateY(-2px); }
+
+        .student-info { flex: 1; display: flex; flex-direction: column; }
+        .student-name { font-weight: 700; color: var(--blue-color); font-size: 18px; text-transform: uppercase; }
+        .student-session { font-size: 13px; color: #666; margin-top: 4px; font-weight: 600; }
         
-        .student-name {
-            flex: 1;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--primary-color);
-            font-size: 16px;
-        }
-        
-        .actions { display: flex; gap: 10px; }
-        
-        button {
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            transition: opacity 0.2s;
-        }
-        
-        .view-btn { background: #e8f5e9; color: var(--primary-color); }
+        .actions { display: flex; gap: 12px; }
+        .action-btn { border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .view-btn { background: #e3f2fd; color: var(--blue-color); }
         .delete-btn { background: #ffebee; color: var(--danger-color); }
-        .clear-btn { 
-            background: var(--danger-color); 
-            color: white; 
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 20px;
-            display: none; /* Hidden until results load */
-        }
-        
-        button:hover { opacity: 0.8; }
-        
-        #status { text-align: center; color: #666; margin-top: 20px; font-style: italic; }
-        
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
+
+        .clear-btn { background: var(--danger-color); color: white; width: 100%; padding: 15px; margin-bottom: 25px; border-radius: 12px; display: none; font-weight: bold; font-size: 16px; }
+
+        #status { text-align: center; color: #666; margin-top: 30px; font-weight: bold; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--blue-color); border-radius: 50%; width: 35px; height: 35px; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<h2><span id="loadIcon"></span>Student Results Management</h2>
+<div id="accessOverlay">
+    <div class="dialogue-box" id="step1">
+        <h3>ENTER YOUR CLASS NAME</h3>
+        <p>Results will be grouped by the class name you provide</p>
+        <input type="text" id="classNameInput" placeholder="E.G. PRIMARY 5" oninput="this.value = this.value.toUpperCase()">
+        <button class="btn-block btn-primary" onclick="handleClassSubmit()">OPEN SAVED RESULT</button>
+    </div>
 
-<button id="clearAllBtn" class="clear-btn" onclick="clearHistory()">DELETE ALL HISTORY</button>
+    <div class="dialogue-box" id="stepNew" style="display:none">
+        <h3 style="color:var(--danger-color)">SECRET PHRASE</h3>
+        <p>This is a new class. Copy this secret word to access these results next time:</p>
+        <div style="background:#fff9c4; padding:25px; border-radius:15px; margin:20px 0; border:3px dashed #fbc02d;">
+            <div id="newSecretWord" style="font-size:45px; font-weight:900; letter-spacing:5px; color:#d32f2f; font-family:monospace;"></div>
+        </div>
+        <button class="btn-block btn-primary" onclick="unlockMainList()">CONTINUE TO RESULTS</button>
+    </div>
 
-<div id="pdfList">
-    <!-- List items will be injected here -->
+    <div class="dialogue-box" id="stepVerify" style="display:none">
+        <h3>SECURITY VERIFICATION</h3>
+        <p id="verifyInstruction"></p>
+        <input type="text" id="phraseInput" oninput="this.value = this.value.toUpperCase()" placeholder="ENTER SECRET WORD">
+        <button class="btn-block btn-primary" onclick="verifySecretPhrase()">UNLOCK RESULTS</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:blue; margin-top:20px; cursor:pointer; font-weight:bold;">← Change Class</button>
+    </div>
+
+    <!-- Step 4: Term Selection (For Master Mode) -->
+    <div class="dialogue-box" id="stepTerm" style="display:none">
+        <h3>SELECT TERM</h3>
+        <p>Choose the term results you want to view:</p>
+        <button class="btn-block btn-primary" onclick="selectMasterTerm('1ST TERM')">1ST TERM</button>
+        <button class="btn-block btn-primary" onclick="selectMasterTerm('2ND TERM')">2ND TERM</button>
+        <button class="btn-block btn-primary" onclick="selectMasterTerm('3RD TERM')">3RD TERM</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:blue; margin-top:20px; cursor:pointer; font-weight:bold;">← Back</button>
+    </div>
 </div>
 
-<div id="status">Loading results...</div>
+<div id="mainList">
+    <h2 id="classTitleDisplay">CLASS RESULTS</h2>
+    <button id="clearAllBtn" class="clear-btn" onclick="clearClassHistory()">DELETE ALL HISTORY</button>
+    <div id="pdfList"></div>
+    <div id="status"></div>
+    <div style="text-align: center; margin-top: 50px;">
+        <a href="index.html" style="text-decoration:none; color:var(--blue-color); font-weight:bold; font-size: 16px;">← Back to Dashboard</a>
+    </div>
+</div>
 
 <script>
-    const API_KEY = "$2a$10$N28mNlGJm6I/gycmgCJJUOY0I1lZvywRLg1A70hnKaHclYiM6bHC.";
-    const BIN_PRIMARY = "69a08ed7d0ea881f40dc82ff";
-    const BIN_HIGH = "69af0b88ae596e708f71b09c";
+    const firebaseConfig = {
+        apiKey: "AIzaSyDP2RUvv2KN_zZgfnyyhgrzBvCG2AN4Jpw",
+        authDomain: "eris-portal.firebaseapp.com",
+        projectId: "eris-portal",
+        storageBucket: "eris-portal.firebasestorage.app",
+        messagingSenderId: "259953979684",
+        appId: "1:259953979684:android:833a6c377d17b8566d43b1"
+    };
 
-    async function loadResults() {
-        const listDiv = document.getElementById("pdfList");
-        const statusDiv = document.getElementById("status");
-        
-        if (typeof Android !== "undefined" && Android.getPDFList) {
-            Android.getPDFList();
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const ACCESS_COLLECTION = "class_access";
+
+    let targetClass = "";
+    let correctPhrase = "";
+    let isMasterMode = false;
+    let selectedTerm = "";
+
+    async function handleClassSubmit() {
+        const input = document.getElementById("classNameInput");
+        targetClass = input.value.trim().toUpperCase();
+        if (!targetClass) { alert("Please enter a class name!"); return; }
+
+        if (targetClass === "ALL CLASSES") {
+            isMasterMode = true;
+            document.getElementById("verifyInstruction").innerText = "Enter Master Phrase to access ALL classes.";
+            document.getElementById("step1").style.display = "none";
+            document.getElementById("stepVerify").style.display = "block";
             return;
         }
+
+        isMasterMode = false;
+        try {
+            const doc = await db.collection(ACCESS_COLLECTION).doc(targetClass).get();
+            if (doc.exists) {
+                correctPhrase = doc.data().phrase;
+                document.getElementById("verifyInstruction").innerHTML = "Enter phrase to access <b>" + targetClass + "</b> results";
+                document.getElementById("step1").style.display = "none";
+                document.getElementById("stepVerify").style.display = "block";
+            } else {
+                const word = generateRandomWord();
+                await db.collection(ACCESS_COLLECTION).doc(targetClass).set({ phrase: word, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                document.getElementById("newSecretWord").innerText = word;
+                document.getElementById("step1").style.display = "none";
+                document.getElementById("stepNew").style.display = "block";
+            }
+        } catch (e) { alert("Error: " + e.message); }
+    }
+
+    function generateRandomWord() {
+        const words = ["WISDOM", "POWER", "BRAIN", "SMART", "GREAT", "FUTURE", "STRONG", "HONOR", "SHINE", "LEVEL"];
+        return words[Math.floor(Math.random() * words.length)];
+    }
+
+    function verifySecretPhrase() {
+        const entered = document.getElementById("phraseInput").value.trim().toUpperCase();
+        if (isMasterMode) {
+            if (entered === "OPEN CLASS RESULT") unlockMainList();
+            else alert("INCORRECT MASTER PHRASE!");
+        } else {
+            if (entered === correctPhrase.toUpperCase()) unlockMainList();
+            else alert("INCORRECT PHRASE!");
+        }
+    }
+
+    function unlockMainList() {
+        if (isMasterMode) {
+            document.getElementById("stepVerify").style.display = "none";
+            document.getElementById("stepTerm").style.display = "block";
+        } else {
+            document.getElementById("accessOverlay").style.display = "none";
+            document.getElementById("mainList").style.display = "block";
+            loadClassData();
+        }
+    }
+
+    function selectMasterTerm(term) {
+        selectedTerm = term;
+        document.getElementById("accessOverlay").style.display = "none";
+        document.getElementById("mainList").style.display = "block";
+        document.getElementById("classTitleDisplay").innerText = "ALL " + term + " RESULTS";
+        document.getElementById("clearAllBtn").style.display = "block";
+        loadClassData();
+    }
+
+    async function loadClassData() {
+        const listDiv = document.getElementById("pdfList");
+        const statusDiv = document.getElementById("status");
+        listDiv.innerHTML = "";
+        statusDiv.innerHTML = '<div class="loader"></div><br>Loading...';
 
         try {
-            statusDiv.innerHTML = '<div class="loader"></div>Fetching from database...';
-            const primaryData = await fetchBin(BIN_PRIMARY);
-            const highData = await fetchBin(BIN_HIGH);
-            
-            const combined = {...primaryData, ...highData};
-            renderList(Object.keys(combined));
-        } catch (e) {
-            statusDiv.innerText = "Failed to load list. Please check your connection.";
-        }
+            const collections = ["primary_students", "high_school_students"];
+            let resultsFound = [];
+            let termToFilter = selectedTerm;
+
+            if (!isMasterMode) {
+                // Find most recent session for this specific class
+                let latestDoc = null;
+                for (const col of collections) {
+                    const snap = await db.collection(col).where("class", "==", targetClass).orderBy("timestamp", "desc").limit(1).get();
+                    if (!snap.empty) {
+                        if (!latestDoc || snap.docs[0].data().timestamp > latestDoc.data().timestamp) latestDoc = snap.docs[0];
+                    }
+                }
+                if (!latestDoc) { statusDiv.innerText = "No results found."; return; }
+                termToFilter = latestDoc.data().session;
+                document.getElementById("classTitleDisplay").innerText = targetClass + " - " + termToFilter;
+            }
+
+            for (const col of collections) {
+                let query = db.collection(col);
+                if (isMasterMode) {
+                    const snapshot = await query.get();
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.session && data.session.toUpperCase().includes(termToFilter)) resultsFound.push({ id: doc.id, collection: col, ...data });
+                    });
+                } else {
+                    const snapshot = await query.where("class", "==", targetClass).where("session", "==", termToFilter).get();
+                    snapshot.forEach(doc => resultsFound.push({ id: doc.id, collection: col, ...doc.data() }));
+                }
+            }
+
+            renderResults(resultsFound);
+        } catch (e) { statusDiv.innerText = "Error: " + e.message; console.error(e); }
     }
 
-    async function fetchBin(binId) {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-            headers: { 'X-Master-Key': API_KEY }
-        });
-        const data = await res.json();
-        return data.record || {};
-    }
-
-    function showPDFList(data) {
-        let names = [];
-        if (Array.isArray(data)) {
-            names = data;
-        } else if (typeof data === "string") {
-            names = data.split("|").filter(n => n.trim() !== "");
-        }
-        renderList(names);
-    }
-
-    function renderList(names) {
+    function renderResults(students) {
         const listDiv = document.getElementById("pdfList");
         const statusDiv = document.getElementById("status");
-        const clearBtn = document.getElementById("clearAllBtn");
         listDiv.innerHTML = "";
-
-        if (!names || names.length === 0) {
-            statusDiv.innerText = "No saved results found.";
-            clearBtn.style.display = "none";
-            return;
-        }
-
-        clearBtn.style.display = "block";
-        const uniqueNames = [...new Set(names)].filter(n => n && n.trim() !== "");
-        
-        uniqueNames.sort().forEach(name => {
+        if (students.length === 0) { statusDiv.innerText = "No results matching this term."; return; }
+        students.sort((a,b) => (a.name || "").localeCompare(b.name || ""));
+        students.forEach(student => {
             const item = document.createElement("div");
             item.className = "result-item";
-            
             item.innerHTML = `
-                <div class="student-name" onclick="openResult('${name}')">${name}</div>
-                <div class="actions">
-                    <button class="view-btn" onclick="openResult('${name}')">VIEW</button>
-                    <button class="delete-btn" onclick="deleteResult('${name}')">DELETE</button>
+                <div class="student-info">
+                    <div class="student-name">${student.name}${isMasterMode ? ' (' + (student.class || '') + ')' : ''}</div>
+                    <div class="student-session">${student.session}</div>
                 </div>
-            `;
+                <div class="actions">
+                    <button class="action-btn view-btn" onclick="openResult('${student.id}')">VIEW</button>
+                    <button class="action-btn delete-btn" onclick="deleteStudent('${student.id}', '${student.name}')">DELETE</button>
+                </div>`;
             listDiv.appendChild(item);
         });
-        
-        statusDiv.innerText = `Total Results: ${uniqueNames.length}`;
+        statusDiv.innerText = "Showing " + students.length + " Student(s)";
     }
 
-    function openResult(name) {
-        if (typeof Android !== "undefined" && Android.openPDF) {
-            Android.openPDF(name);
-        } else {
-            alert("Please use the ERIS App to view result PDFs.");
+    function openResult(id) { if (typeof Android !== "undefined") Android.openPDF(id); }
+
+    async function deleteStudent(id, name) {
+        if (!confirm("Delete result for " + name + "?")) return;
+        if (typeof Android !== "undefined") {
+            Android.deleteStudent(id);
+            setTimeout(loadClassData, 1500);
         }
     }
 
-    async function deleteResult(name) {
-        if (!confirm(`Are you sure you want to delete the result for ${name}?`)) return;
-
-        if (typeof Android !== "undefined" && Android.deleteStudent) {
-            Android.deleteStudent(name);
-            setTimeout(loadResults, 1000);
-        } else {
-            alert("Delete is only available within the ERIS App.");
-        }
-    }
-
-    async function clearHistory() {
-        if (!confirm("DANGER: Are you sure you want to PERMANENTLY DELETE ALL student results? This will clear the database and Cloudinary storage.")) return;
-        if (!confirm("This action cannot be undone. Are you absolutely sure?")) return;
-
-        if (typeof Android !== "undefined" && Android.deleteAllHistory) {
+    async function clearClassHistory() {
+        if (!isMasterMode) return;
+        if (!confirm("DANGER: This wipes everything for ALL CLASSES. Continue?")) return;
+        const confirmWord = prompt("Type 'CONFIRM DELETE ALL':");
+        if (confirmWord !== "CONFIRM DELETE ALL") return;
+        if (typeof Android !== "undefined") {
             Android.deleteAllHistory();
-            document.getElementById("status").innerText = "Clearing all data... Please wait.";
-            document.getElementById("pdfList").innerHTML = "";
-            document.getElementById("clearAllBtn").style.display = "none";
-            setTimeout(loadResults, 3000);
-        } else {
-            alert("Delete History is only available within the ERIS App.");
+            const collections = ["class_access"];
+            for (const col of collections) {
+                const snapshot = await db.collection(col).get();
+                const batch = db.batch();
+                snapshot.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+            }
+            alert("System Reset Successfully.");
+            location.reload();
         }
     }
-
-    window.onload = loadResults;
 </script>
-
 </body>
 </html>
