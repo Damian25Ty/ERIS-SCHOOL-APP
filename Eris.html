@@ -90,7 +90,7 @@
     <!-- Command Section -->
     <div id="commandArea" class="container">
         <h1>COMMAND CENTER</h1>
-        <p style="color: #666; font-size: 14px;">Type a destination (e.g. check result, primary school result, high school result.s)</p>
+        <p style="color: #666; font-size: 14px;">Type a destination (e.g. check result, gallery, admin, chat.)</p>
         <input type="text" id="commandInput" placeholder="Enter destination name...">
         <p id="helpText" style="font-size: 12px; color: #888; margin-top: 10px;"></p>
     </div>
@@ -98,7 +98,7 @@
     <script>
         function openPage() {
             let passkey = document.getElementById("passkeyInput").value;
-            if (passkey === "2004Eris"){
+            if (passkey ==="2004Eris"){
                 document.getElementById("verify").style.display = "none";
                 document.getElementById("commandArea").style.display = "block";
                 document.getElementById("commandInput").focus();
@@ -119,10 +119,10 @@
                         window.location.href = "admin2.html";
                         break;
                     case "primary school result":
-                        window.location.href = "index.html";
+                        window.location.href = "primarySch.html";
                         break;
                     case "high school result":
-                        window.location.href = "index2.html";
+                        window.location.href = "highSch.html";
                         break;
                     case "check result":
                         window.location.href = "result_portal.html";
@@ -130,19 +130,8 @@
                     case "saved results":
                         window.location.href = "display.html";
                         break;
-                    case "paid":
-                    case "payment history":
-                        window.location.href = "paid.html";
-                        break;
-                    case "chat":
-                    case "assistant":
-                        window.location.href = "chat.html";
-                        break;
-                    case "make payment":
-                        window.location.href = "payment.html";
-                        break;
                     default:
-                        const msg = "Invalid command. Try: Admin, Result Making, Paid, Chat, Check Result";
+                        const msg = "Invalid command. Try: Admin, Primary school result, High school result , Check Result";
                         if (typeof Android !== "undefined" && Android.showToast) {
                             Android.showToast(msg);
                         } else {
