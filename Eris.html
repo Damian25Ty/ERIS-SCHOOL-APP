@@ -90,7 +90,7 @@
     <!-- Command Section -->
     <div id="commandArea" class="container">
         <h1>COMMAND CENTER</h1>
-        <p style="color: #666; font-size: 14px;">Type a destination (e.g. check result, gallery, admin, chat.)</p>
+        <p style="color: #666; font-size: 14px;">Type a destination (e.g. primary school result, high school result, check result.)</p>
         <input type="text" id="commandInput" placeholder="Enter destination name...">
         <p id="helpText" style="font-size: 12px; color: #888; margin-top: 10px;"></p>
     </div>
@@ -131,7 +131,7 @@
                         window.location.href = "display.html";
                         break;
                     default:
-                        const msg = "Invalid command. Try: Admin, Primary school result, High school result , Check Result";
+                        const msg = "Invalid command. Try: Primary school result, High school result , Check Result";
                         if (typeof Android !== "undefined" && Android.showToast) {
                             Android.showToast(msg);
                         } else {
